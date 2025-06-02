@@ -5,6 +5,66 @@
   --foreground: #171717;
 }
 
+/* --- Notion-like tokens --------------------------------------- */
+@theme {
+  /* ╭─  Base palette — matches Notion color tokens  ─╮ */
+
+  /* Text / surface */
+  --color-n-black:        #2f3437;  /* default text */
+  --color-n-bg:           #f7f6f3;  /* page background */
+  --color-n-gray:         #e8e5e1;  /* border / divider */
+
+  /* Accent solids (badge colors) */
+  --color-n-brown:        #64473a;
+  --color-n-orange:       #d9730d;
+  --color-n-yellow:       #cb912f;
+  --color-n-green:        #448361;
+  --color-n-blue:         #2f80ed;
+  --color-n-purple:       #9065b0;
+  --color-n-pink:         #c14c8a;
+  --color-n-red:          #d44c47;
+
+  /* ╭─  Pastel tints for callouts / soft backgrounds  ─╮ */
+  --color-n-brown-bg:     rgba(100  71  58 / 0.15);
+  --color-n-orange-bg:    rgba(217 115  13 / 0.15);
+  --color-n-yellow-bg:    rgba(203 145  47 / 0.15);
+  --color-n-green-bg:     rgba( 68 131  97 / 0.15);
+  --color-n-blue-bg:      rgba( 47 128 237 / 0.15);
+  --color-n-purple-bg:    rgba(144 101 176 / 0.15);
+  --color-n-pink-bg:      rgba(193  76 138 / 0.15);
+  --color-n-red-bg:       rgba(212  76  71 / 0.15);
+  --color-n-gray-bg:      rgba(232 229 225 / 0.6);   /* table striping */
+
+  /* ╭─  Shadows & radius tokens  ─╮ */
+  --radius-btn:           6px;
+  --radius-card:          8px;
+  --shadow-card:          0 1px 3px rgba(0 0 0 / .06), 0 1px 2px rgba(0 0 0 / .1);
+
+  /* ╭─  Motion  ─╮ */
+  --ease-fluid:           cubic-bezier(0.3, 0, 0, 1);
+  --duration-quick:       120ms;
+  --duration-normal:      220ms;
+
+  /* ╭─  Typography  ─╮ */
+  --font-sans:            ui-sans-serif, "Helvetica Neue", Arial, sans-serif;
+  --leading-tight:        1.25;
+  --leading-relaxed:      1.65;
+
+  /* ╭─  Gradients (cover / hero)  ─╮ */
+  --gradient-n-amin:         linear-gradient(to right, #7a36d6, #3f1bb9);
+  --gradient-n-atlas:        linear-gradient(to right, #ffcf8b, #d2a2e3, #84d8da);
+  --gradient-n-ocean-mint:   linear-gradient(to right, #4ad0ff, #b2ffca);
+  --gradient-n-rainbow-soft: linear-gradient(to right, #48c6ff, #d884ff, #ff6b6b);
+  --gradient-n-lime-mint:    linear-gradient(to right, #00b09b, #a7e26d);
+  --gradient-n-sunrise:      linear-gradient(to right, #ff6a3a, #ffae00);
+  --gradient-n-rose-gold:    linear-gradient(to right, #ff7a7a, #e8008c);
+
+  /* ╭─  Z-indices  ─╮ */
+  --z-navbar:            50;
+  --z-overlay:           100;
+}
+
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
