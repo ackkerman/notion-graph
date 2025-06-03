@@ -4,6 +4,7 @@ import GraphView, { GraphViewHandle } from "./GraphView";
 import LayoutControls from "./LayoutControls";
 import StatsPanel from "./StatsPanel";
 import NodeListPanel from "./NodeListPanel";
+import NodeDetailPanel from "./NodeDetailPanel";
 import { buildStyles } from "@/lib/cytoscape/styles";
 import type { PageKW } from "@/lib/cytoscape/graph";
 import { layouts } from "./GraphView";
@@ -14,6 +15,7 @@ export default function GraphPanel({ pages, selectedProps }: Props) {
   const viewRef = useRef<GraphViewHandle | null>(null);
   const [layout, setLayout] = useState<keyof typeof layouts>("cose-bilkent");
   const [version, setVersion] = useState(0);
+  const [selectedNode, setSelectedNode] = useState<string | null>(null);
 
   /* トグル用 state（お好みで拡張） */
   const [showNodeLabels, setShowNodeLabels] = useState(true);
@@ -77,6 +79,7 @@ export default function GraphPanel({ pages, selectedProps }: Props) {
         layoutName={layout}
         stylesheet={stylesheet}
         height={600}
+        onSelectNode={setSelectedNode}
       />
       <StatsPanel
         pages={pages}
@@ -91,6 +94,7 @@ export default function GraphPanel({ pages, selectedProps }: Props) {
         version={version}
         onDelete={handleNodeDelete}
       />
+      <NodeDetailPanel nodeId={selectedNode} pages={pages} />
     </section>
   );
 }

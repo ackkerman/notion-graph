@@ -59,6 +59,7 @@ type Props = {
   height?: number;
   // @ts-ignore
   stylesheet: cytoscape.Stylesheet[];
+  onSelectNode?: (id: string | null) => void;
 };
 
 export interface GraphViewHandle {
@@ -74,7 +75,7 @@ export interface GraphViewHandle {
 }
 
 const GraphView = forwardRef<GraphViewHandle, Props>(
-  ({ pages, selectedProps = [], layoutName = "cose", height = 600, stylesheet }, ref) => {
+  ({ pages, selectedProps = [], layoutName = "cose", height = 600, stylesheet, onSelectNode }, ref) => {
     const { nodes, edges } = useMemo(
       () => buildGraph(pages, { selectedProps }),
       [pages, selectedProps]
@@ -118,7 +119,16 @@ const GraphView = forwardRef<GraphViewHandle, Props>(
 
     return (
       <CytoscapeComponent
-        cy={(cy) => (cyRef.current = cy as unknown as cytoscape.Core)}
+        cy={(cy) => {
+          const core = cy as unknown as cytoscape.Core;
+          cyRef.current = core;
+          if (onSelectNode) {
+            core.on("tap", "node", (e) => onSelectNode(e.target.id()));
+            core.on("tap", (e) => {
+              if (e.target === core) onSelectNode(null);
+            });
+          }
+        }}
         elements={[...nodes, ...edges]}
         layout={layouts[layoutName]}
         stylesheet={stylesheet}

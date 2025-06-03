@@ -26,6 +26,7 @@
 | 📦 **100 % client-side**               | No backend—runs on Vercel/Pages/S3 as static files.                                 |
 | 📊 **Graph statistics**                | Displays node counts and top central nodes based on degree.                        |
 | 🗑️ **Node pruning**                    | Remove nodes from a list sorted by degree.                                         |
+| 🔍 **Node detail panel**               | Click a node in the graph to inspect its Notion properties.                        |
 
 ## 📸 Demo
 
