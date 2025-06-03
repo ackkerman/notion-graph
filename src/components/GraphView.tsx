@@ -83,7 +83,7 @@ const GraphView = forwardRef<GraphViewHandle, Props>(
     const cyRef = useRef<cytoscape.Core | null>(null);
 
     /* expose methods */
-    useImperativeHandle(ref, () => ({
+  useImperativeHandle(ref, () => ({
       fit: () => cyRef.current?.fit(),
       zoomIn: () => cyRef.current?.zoom(cyRef.current.zoom() * 1.2),
       zoomOut: () => cyRef.current?.zoom(cyRef.current.zoom() * 0.8),
@@ -116,18 +116,42 @@ const GraphView = forwardRef<GraphViewHandle, Props>(
       png: () => cyRef.current?.png({ full: true }),
       json: () => cyRef.current?.json(),
     }));
+    
+    const attachHandlers = (cy: cytoscape.Core) => {
+      const tapHandler = (e: cytoscape.EventObject) => {
+        onSelectNode?.(e.target.id?.() ?? null);
+      };
+
+      const dblHandler = (e: cytoscape.EventObject) => {
+        const id = e.target.id?.();
+        if (id?.startsWith("p-")) {
+          const pageId = id.slice(2).replace(/-/g, "");
+          window.open(`https://www.notion.so/${pageId}`, "_blank");
+        }
+      };
+
+      /* register */
+      cy.on("tap", "node", tapHandler);
+      cy.on("dbltap", "node[type='page']", dblHandler);
+      cy.on("tap", (evt) => {
+        // 背景クリックで選択解除
+        if (evt.target === cy) onSelectNode?.(null);
+      });
+
+      /* cleanup on unmount */
+      return () => {
+        cy.off("tap", "node", tapHandler);
+        cy.off("dbltap", "node[type='page']", dblHandler);
+        cy.off("tap");
+      };
+    };
 
     return (
       <CytoscapeComponent
         cy={(cy) => {
           const core = cy as unknown as cytoscape.Core;
           cyRef.current = core;
-          if (onSelectNode) {
-            core.on("tap", "node", (e) => onSelectNode(e.target.id()));
-            core.on("tap", (e) => {
-              if (e.target === core) onSelectNode(null);
-            });
-          }
+          attachHandlers(core);
         }}
         elements={[...nodes, ...edges]}
         layout={layouts[layoutName]}
