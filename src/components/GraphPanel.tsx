@@ -63,7 +63,13 @@ export default function GraphPanel({ pages, selectedProps }: Props) {
         viewRef={viewRef}
         version={version}
       />
-      <NodeListPanel viewRef={viewRef} onDelete={handleNodeDelete} />
+      <NodeListPanel
+        viewRef={viewRef}
+        pages={pages}
+        selectedProps={selectedProps}
+        version={version}
+        onDelete={handleNodeDelete}
+      />
     </section>
   );
 }

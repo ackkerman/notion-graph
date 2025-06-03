@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { ChevronDown, ChevronRight, BarChart3 } from "lucide-react";
 import type { PageKW } from "@/lib/cytoscape/graph";
 import { buildGraph } from "@/lib/cytoscape/graph";
@@ -15,14 +15,21 @@ type Props = {
 
 export default function StatsPanel({ pages, selectedProps, viewRef, version }: Props) {
   const [collapsed, setCollapsed] = useState(false);
-  
+  const [readyVersion, setReadyVersion] = useState(0);
+
+  useEffect(() => {
+    if (viewRef.current) setReadyVersion((v) => v + 1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [viewRef.current]);
+
   const stats = useMemo(() => {
     void version;
     const graph = viewRef.current
       ? viewRef.current.getGraphData()
       : buildGraph(pages, { selectedProps });
     return computeGraphStats(graph);
-  }, [pages, selectedProps, viewRef, version]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pages, selectedProps, viewRef, version, readyVersion]);
 
   return (
     <section className="flex flex-col gap-2 rounded-[var(--radius-card)] border border-n-gray bg-white p-3 text-sm">

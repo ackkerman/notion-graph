@@ -2,6 +2,8 @@
 import { useEffect, useState } from "react";
 import { Trash, ChevronDown, ChevronRight, ListTree } from "lucide-react";
 import type { GraphViewHandle } from "./GraphView";
+import type { PageKW } from "@/lib/cytoscape/graph";
+import { buildGraph } from "@/lib/cytoscape/graph";
 
 interface NodeInfo {
   id: string;
@@ -11,23 +13,48 @@ interface NodeInfo {
 
 interface Props {
   viewRef: React.RefObject<GraphViewHandle | null>;
+  pages: PageKW[];
+  selectedProps: string[];
+  version: number;
   onDelete?: () => void;
 }
 
 
-export default function NodeListPanel({ viewRef, onDelete }: Props) {
+export default function NodeListPanel({
+  viewRef,
+  pages,
+  selectedProps,
+  version,
+  onDelete,
+}: Props) {
   const [collapsed, setCollapsed] = useState(false);
   const [nodes, setNodes] = useState<NodeInfo[]>([]);
 
   const refresh = () => {
-    const list = viewRef.current?.getNodesByDegree() ?? [];
+    if (viewRef.current) {
+      setNodes(viewRef.current.getNodesByDegree());
+      return;
+    }
+    const { nodes, edges } = buildGraph(pages, { selectedProps });
+    const degree = new Map<string, number>();
+    edges.forEach((e) => {
+      degree.set(e.data.source, (degree.get(e.data.source) || 0) + 1);
+      degree.set(e.data.target, (degree.get(e.data.target) || 0) + 1);
+    });
+    const list = nodes
+      .map((n) => ({
+        id: n.data.id,
+        label: n.data.label,
+        degree: degree.get(n.data.id) ?? 0,
+      }))
+      .sort((a, b) => b.degree - a.degree);
     setNodes(list);
   };
 
   useEffect(() => {
     refresh();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [pages, selectedProps, version, viewRef.current]);
 
   const handleDelete = (id: string) => {
     viewRef.current?.removeNode(id);
