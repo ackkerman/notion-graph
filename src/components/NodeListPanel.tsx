@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Trash } from "lucide-react";
+import { Trash, ChevronDown, ChevronRight, ListTree } from "lucide-react";
 import type { GraphViewHandle } from "./GraphView";
 
 interface NodeInfo {
@@ -14,6 +14,7 @@ interface Props {
 }
 
 export default function NodeListPanel({ viewRef }: Props) {
+  const [collapsed, setCollapsed] = useState(false);
   const [nodes, setNodes] = useState<NodeInfo[]>([]);
 
   const refresh = () => {
@@ -32,24 +33,33 @@ export default function NodeListPanel({ viewRef }: Props) {
   };
 
   return (
-    <section className="rounded-[var(--radius-card)] border border-n-gray bg-white p-3 text-sm">
-      <h2 className="mb-2 font-medium">Nodes</h2>
-      <ul className="max-h-64 space-y-1 overflow-auto">
-        {nodes.map((n) => (
-          <li key={n.id} className="flex items-center justify-between gap-2">
-            <span>
-              {n.label}
-              <span className="text-xs text-n-gray-600">({n.degree})</span>
-            </span>
-            <button
-              onClick={() => handleDelete(n.id)}
-              className="text-n-red hover:text-n-red-700"
-            >
-              <Trash size={14} />
-            </button>
-          </li>
-        ))}
-      </ul>
+    <section className="flex flex-col gap-2 rounded-[var(--radius-card)] border border-n-gray bg-white p-3 text-sm">
+      <button
+        onClick={() => setCollapsed((c) => !c)}
+        className="flex w-full items-center gap-1 font-medium"
+      >
+        {collapsed ? <ChevronRight size={18} /> : <ChevronDown size={18} />}
+        <ListTree size={18} />
+        Nodes
+      </button>
+      {!collapsed && (
+        <ul className="max-h-64 space-y-1 overflow-auto">
+          {nodes.map((n) => (
+            <li key={n.id} className="flex items-center justify-between gap-2">
+              <span>
+                {n.label}
+                <span className="text-xs text-n-gray-600">({n.degree})</span>
+              </span>
+              <button
+                onClick={() => handleDelete(n.id)}
+                className="text-n-red hover:text-n-red-700"
+              >
+                <Trash size={14} />
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
     </section>
   );
 }
