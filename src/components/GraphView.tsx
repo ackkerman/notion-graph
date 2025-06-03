@@ -117,16 +117,37 @@ const GraphView = forwardRef<GraphViewHandle, Props>(
     }));
 
     const attachHandlers = (cy: cytoscape.Core) => {
+      let selectedPageId: string | null = null;
+
+      const handleSelect = (evt: cytoscape.EventObject) => {
+        const id: string = evt.target.id();
+        if (id.startsWith("p-")) {
+          selectedPageId = id;
+        }
+      };
+      const handleUnselect = (evt: cytoscape.EventObject) => {
+        const id: string = evt.target.id();
+        if (selectedPageId === id) {
+          selectedPageId = null;
+        }
+      };
       const openPage = (evt: cytoscape.EventObject) => {
         const id: string = evt.target.id();
-        if (!id.startsWith("p-")) return;
-        const pageId = id.slice(2).replace(/-/g, "");
-        const url = `https://www.notion.so/${pageId}`;
-        window.open(url, "_blank");
+        if (id.startsWith("p-") && selectedPageId === id) {
+          const pageId = id.slice(2).replace(/-/g, "");
+          const url = `https://www.notion.so/${pageId}`;
+          window.open(url, "_blank");
+        }
       };
+
+      cy.on("select", "node[type='page']", handleSelect);
+      cy.on("unselect", "node[type='page']", handleUnselect);
       cy.on("tap", "node[type='page']", openPage);
+
       return () => {
         cy.off("tap", "node[type='page']", openPage);
+        cy.off("select", "node[type='page']", handleSelect);
+        cy.off("unselect", "node[type='page']", handleUnselect);
       };
     };
 
