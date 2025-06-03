@@ -38,12 +38,33 @@ export default function GraphPanel({ pages, selectedProps }: Props) {
     onFit: () => viewRef.current?.fit(),
     onZoomIn: () => viewRef.current?.zoomIn(),
     onZoomOut: () => viewRef.current?.zoomOut(),
+    onExportPng: () => {
+      const uri = viewRef.current?.png();
+      if (!uri) return;
+      const a = document.createElement("a");
+      a.href = uri;
+      a.download = "graph.png";
+      a.click();
+    },
+    onExportJson: () => {
+      const json = viewRef.current?.json();
+      if (!json) return;
+      const blob = new Blob([JSON.stringify(json, null, 2)], {
+        type: "application/json",
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "graph.json";
+      a.click();
+      URL.revokeObjectURL(url);
+    },
     showEdgeLabels,
     showNodeLabels,
     onToggleEdgeLabels: () => setShowEdgeLabels((s) => !s),
     onToggleNodeLabels: () => setShowNodeLabels((s) => !s),
   };
-
+      
   const handleNodeDelete = () => setVersion((v) => v + 1);
 
   return (

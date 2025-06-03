@@ -69,6 +69,8 @@ export interface GraphViewHandle {
   removeNode: (id: string) => void;
   getNodesByDegree: () => { id: string; label: string; degree: number }[];
   getGraphData: () => GraphData;
+  png: () => string | undefined;
+  json: () => any;
 }
 
 const GraphView = forwardRef<GraphViewHandle, Props>(
@@ -110,6 +112,8 @@ const GraphView = forwardRef<GraphViewHandle, Props>(
           .map((e) => ({ data: { ...e.data() } }));
         return { nodes, edges } as GraphData;
       },
+      png: () => cyRef.current?.png({ full: true }),
+      json: () => cyRef.current?.json(),
     }));
 
     return (
