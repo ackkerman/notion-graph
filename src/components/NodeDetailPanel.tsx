@@ -5,14 +5,18 @@ import type { PageKW } from "@/lib/cytoscape/graph";
 import type { GraphViewHandle } from "./GraphView";
 import type { NodeData } from "@/lib/cytoscape/types";
 import { slug, getConnectedNodes } from "@/lib/cytoscape/graph";
+import { fetchPageDetail } from "@/lib/notion/notionPage";
+import NotionRenderer from "@/components/NotionRenderer";
+import { renderBlocks, sanitizeHtml } from "@/lib/notion/renderBlocks";
 
 interface Props {
   nodeId: string | null;
   pages: PageKW[];
   viewRef: React.RefObject<GraphViewHandle | null>;
 }
-
+  
 export default function NodeDetailPanel({ nodeId, pages, viewRef }: Props) {
+  const [html, setHtml] = useState<string | null>(null);
   type PageDetail = { type: "page"; page: PageKW; connected: NodeData[] };
   type KeywordDetail = { type: "keyword"; keyword: string; pages: PageKW[] };
   type PropDetail = { type: "prop"; prop: string; value: string; pages: PageKW[] };
@@ -22,10 +26,25 @@ export default function NodeDetailPanel({ nodeId, pages, viewRef }: Props) {
   const [collapsed, setCollapsed] = useState(false);
 
   useEffect(() => {
-    if (!nodeId) {
-      setDetail(null);
+    if (!nodeId || !nodeId.startsWith("p-")) {
+      setHtml(null);
       return;
     }
+    let cancelled = false;
+    const id = nodeId.slice(2);
+    fetchPageDetail(id)
+      .then(async(b) => {
+        if (cancelled) return;
+        const raw = await renderBlocks(b);
+        setHtml(sanitizeHtml(raw));
+      })
+      .catch(() => {
+        if (!cancelled) setHtml(null);
+      });
+
+    return () => {
+      cancelled = true;
+    };
 
     const graph = viewRef.current?.getGraphData();
     const node = graph?.nodes.find((n) => n.data.id === nodeId)?.data as
@@ -143,6 +162,7 @@ export default function NodeDetailPanel({ nodeId, pages, viewRef }: Props) {
               ))}
             </ul>
           )}
+          <NotionRenderer html={html} />
         </div>
       )}
       {!detail && (
