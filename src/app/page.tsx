@@ -24,7 +24,7 @@ export default function Page() {
   const [authenticated, setAuthenticated] = useState(false);
   const [dbList, setDbList] = useState<DbInfo[]>([]);
   const [selectedDbId, setSelectedDbId] = useState<string | null>(null);
-  const [selectedProps, setSelectedProps] = useState<string[]>([KW_PROP]);
+  const [selectedProps, setSelectedProps] = useState<string[]>([]);
 
   const [items, setItems] = useState<any[]>([]);
   const [itemsKW, setItemsKW] = useState<PageKW[] | null>(null);
@@ -107,6 +107,9 @@ export default function Page() {
   /* ───── キーワード抽出ボタン ───────────── */
   const handleExtract = () => {
     const enriched = addPageKeywords(items, 10);
+    setSelectedProps((prev) =>
+      prev.includes(KW_PROP) ? prev : [...prev, KW_PROP]
+    );
     setItemsKW(enriched);
   };
 
