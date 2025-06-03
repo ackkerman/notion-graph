@@ -14,14 +14,14 @@ interface Props {
   pages: PageKW[];
   viewRef: React.RefObject<GraphViewHandle | null>;
 }
+
+type PageDetail = { type: "page"; page: PageKW; connected: NodeData[] };
+type KeywordDetail = { type: "keyword"; keyword: string; pages: PageKW[] };
+type PropDetail = { type: "prop"; prop: string; value: string; pages: PageKW[] };
+type Detail = PageDetail | KeywordDetail | PropDetail | null;
   
 export default function NodeDetailPanel({ nodeId, pages, viewRef }: Props) {
   const [html, setHtml] = useState<string | null>(null);
-  type PageDetail = { type: "page"; page: PageKW; connected: NodeData[] };
-  type KeywordDetail = { type: "keyword"; keyword: string; pages: PageKW[] };
-  type PropDetail = { type: "prop"; prop: string; value: string; pages: PageKW[] };
-  type Detail = PageDetail | KeywordDetail | PropDetail | null;
-
   const [detail, setDetail] = useState<Detail>(null);
   const [collapsed, setCollapsed] = useState(false);
 
@@ -30,6 +30,7 @@ export default function NodeDetailPanel({ nodeId, pages, viewRef }: Props) {
       setHtml(null);
       return;
     }
+
     let cancelled = false;
     const id = nodeId.slice(2);
     fetchPageDetail(id)
@@ -45,6 +46,13 @@ export default function NodeDetailPanel({ nodeId, pages, viewRef }: Props) {
     return () => {
       cancelled = true;
     };
+  }, [nodeId]);
+
+  useEffect(() => {
+    if (!nodeId) {
+      setDetail(null);
+      return;
+    }
 
     const graph = viewRef.current?.getGraphData();
     const node = graph?.nodes.find((n) => n.data.id === nodeId)?.data as
@@ -58,13 +66,10 @@ export default function NodeDetailPanel({ nodeId, pages, viewRef }: Props) {
 
     if (node.type === "page") {
       const page = pages.find((p) => `p-${p.id}` === nodeId);
-      if (page)
-        setDetail({
-          type: "page",
-          page,
-          connected: graph ? getConnectedNodes(graph, nodeId) : [],
-        });
-      else setDetail(null);
+      if (page) {
+        const connected = graph ? getConnectedNodes(graph, nodeId) : [];
+        setDetail({ type: "page", page, connected });
+      } else setDetail(null);
       return;
     }
 
@@ -162,7 +167,6 @@ export default function NodeDetailPanel({ nodeId, pages, viewRef }: Props) {
               ))}
             </ul>
           )}
-          <NotionRenderer html={html} />
         </div>
       )}
       {!detail && (
@@ -171,6 +175,7 @@ export default function NodeDetailPanel({ nodeId, pages, viewRef }: Props) {
           <p className="text-n-gray-600">Unsupported node.</p>
         </div>
       )}
+      <NotionRenderer html={html ?? ""} />
     </section>
   );
 }
