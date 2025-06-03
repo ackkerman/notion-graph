@@ -63,7 +63,7 @@ export default function NodeListPanel({
   };
 
   return (
-    <section className="flex flex-col gap-2 rounded-[var(--radius-card)] border border-n-gray bg-white p-3 text-sm">
+    <section className="flex flex-col gap-2 rounded-[var(--radius-card)] border border-n-gray bg-n-bg p-3 text-sm">
       <button
         onClick={() => setCollapsed((c) => !c)}
         className="flex w-full items-center gap-1 font-medium"

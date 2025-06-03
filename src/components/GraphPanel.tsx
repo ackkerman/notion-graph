@@ -68,7 +68,7 @@ export default function GraphPanel({ pages, selectedProps }: Props) {
   const handleNodeDelete = () => setVersion((v) => v + 1);
 
   return (
-    <section className="flex flex-col gap-3 bg-n-bg border border-n-gray rounded-[var(--radius-card)] p-3">
+    <section className="flex flex-col gap-3 bg-white border border-n-gray rounded-[var(--radius-card)] p-3">
       <LayoutControls {...controls} />
       <GraphView
         ref={viewRef}
@@ -76,7 +76,7 @@ export default function GraphPanel({ pages, selectedProps }: Props) {
         selectedProps={selectedProps}
         layoutName={layout}
         stylesheet={stylesheet}
-        height={550}
+        height={600}
       />
       <StatsPanel
         pages={pages}
