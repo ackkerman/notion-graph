@@ -276,6 +276,6 @@ graph TD
 ## 20. Future Roadmap
 
 * [ ] Graph Clustering
-* [ ] Adding view of connections and cut-out function
+* [x] Adding view of connections and cut-out function
 * [ ] Jump to original page from graph
 * [ ] Coloring by status or other property as hue
