@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import type { PageKW } from "@/lib/cytoscape/graph";
 import type { GraphViewHandle } from "./GraphView";
 import type { NodeData } from "@/lib/cytoscape/types";
-import { slug } from "@/lib/cytoscape/graph";
+import { slug, getConnectedNodes } from "@/lib/cytoscape/graph";
 
 interface Props {
   nodeId: string | null;
@@ -12,7 +12,7 @@ interface Props {
 }
 
 export default function NodeDetailPanel({ nodeId, pages, viewRef }: Props) {
-  type PageDetail = { type: "page"; page: PageKW };
+  type PageDetail = { type: "page"; page: PageKW; connected: NodeData[] };
   type KeywordDetail = { type: "keyword"; keyword: string; pages: PageKW[] };
   type PropDetail = { type: "prop"; prop: string; value: string; pages: PageKW[] };
   type Detail = PageDetail | KeywordDetail | PropDetail | null;
@@ -37,7 +37,12 @@ export default function NodeDetailPanel({ nodeId, pages, viewRef }: Props) {
 
     if (node.type === "page") {
       const page = pages.find((p) => `p-${p.id}` === nodeId);
-      if (page) setDetail({ type: "page", page });
+      if (page)
+        setDetail({
+          type: "page",
+          page,
+          connected: graph ? getConnectedNodes(graph, nodeId) : [],
+        });
       else setDetail(null);
       return;
     }
@@ -82,6 +87,16 @@ export default function NodeDetailPanel({ nodeId, pages, viewRef }: Props) {
                 </li>
               ))}
           </ul>
+          {detail.connected.length > 0 && (
+            <>
+              <h3 className="mt-2 font-medium">Connected Nodes</h3>
+              <ul className="ml-4 list-disc space-y-1">
+                {detail.connected.map((n) => (
+                  <li key={n.id}>{n.label}</li>
+                ))}
+              </ul>
+            </>
+          )}
         </div>
       )}
       {detail?.type === "keyword" && (
