@@ -1,18 +1,18 @@
 "use client";
 import { useEffect, useState } from "react";
-import type { NotionBlock } from "@/lib/notion/notionPage";
 import { fetchPageDetail } from "@/lib/notion/notionPage";
+import { renderBlocks, sanitizeHtml } from "@/lib/notion/renderBlocks";
 
 interface Props {
   nodeId: string | null;
 }
 
 export default function NodeDetailPanel({ nodeId }: Props) {
-  const [blocks, setBlocks] = useState<NotionBlock[] | null>(null);
+  const [html, setHtml] = useState<string | null>(null);
 
   useEffect(() => {
     if (!nodeId || !nodeId.startsWith("p-")) {
-      setBlocks(null);
+      setHtml(null);
       return;
     }
 
@@ -20,10 +20,12 @@ export default function NodeDetailPanel({ nodeId }: Props) {
     const id = nodeId.slice(2);
     fetchPageDetail(id)
       .then((b) => {
-        if (!cancelled) setBlocks(b);
+        if (cancelled) return;
+        const raw = renderBlocks(b);
+        setHtml(sanitizeHtml(raw));
       })
       .catch(() => {
-        if (!cancelled) setBlocks(null);
+        if (!cancelled) setHtml(null);
       });
 
     return () => {
@@ -33,16 +35,10 @@ export default function NodeDetailPanel({ nodeId }: Props) {
 
   return (
     <section className="flex flex-col gap-2 rounded-[var(--radius-card)] border border-n-gray bg-n-bg p-3 text-sm">
-      {blocks ? (
+      {html ? (
         <div className="space-y-1">
           <h2 className="font-semibold">Blocks</h2>
-          <ul className="ml-4 list-disc space-y-1">
-            {blocks.map((b) => (
-              <li key={b.id}>
-                <span className="font-medium">{b.type}:</span> {b.text}
-              </li>
-            ))}
-          </ul>
+          <div dangerouslySetInnerHTML={{ __html: html }} />
         </div>
       ) : (
         <div className="space-y-1">
