@@ -12,7 +12,10 @@ export async function POST(req: NextRequest) {
         "Content-Type": "application/json",
         "Notion-Version": "2022-06-28",
       },
-      body: JSON.stringify({ page_size: 100 }),
+      body: JSON.stringify({ 
+        page_size: 100,
+        sorts: [{ property: "Stacked at", direction: "ascending" }],
+      }),
     }
   );
 

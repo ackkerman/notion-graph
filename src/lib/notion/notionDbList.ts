@@ -1,7 +1,8 @@
 // lib/notionDbList.ts
-import { requireNotionToken } from "@/lib/notion/notionToken";
+/* eslint-disable @typescript-eslint/ban-ts-comment, @typescript-eslint/no-explicit-any */
 
-export type DbInfo = { id: string; title: string };
+import { requireNotionToken } from "@/lib/notion/notionToken";
+import type { DbInfo } from "@/lib/notion/types";
 
 /** Accessible DB を検索 (Notion /v1/search) */
 export async function listDatabases(): Promise<DbInfo[]> {

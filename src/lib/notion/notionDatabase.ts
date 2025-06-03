@@ -1,52 +1,41 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment, @typescript-eslint/no-explicit-any */
+
 import { requireNotionToken } from "@/lib/notion/notionToken";
+import { PageKW } from "@/lib/graph";
+import type { NotionPage, NotionRawPage } from "@/lib/notion/types";
 
-export interface NotionPage {
-  id: string;
-  title: string;
-  createdTime: string;
-  lastEditedTime: string;
-}
-
-interface NotionRawPage  {
-  id: string;
-  created_time: string;
-  last_edited_time: string;
-  properties: {
-    [key: string]: {
-      type: string;
-      title?: { plain_text: string }[];
-    };
-  };
-};
-
-export async function fetchDatabasePages(
-  databaseId: string
-) {
+/**
+ * 指定 DB の全ページを取得し、keywords と すべての multi/select を動的に展開
+ */
+export async function fetchDatabasePages(dbId: string): Promise<PageKW[]> {
   const token = requireNotionToken();
-
   const res = await fetch("/api/notion/list", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ databaseId, token }),
+    body: JSON.stringify({ databaseId: dbId, token }),
   });
 
-  if (!res.ok) {
-    const err = await res.json();
-    throw new Error(`API Route error: ${err.message || res.statusText}`);
-  }
+  const json = await res.json();
 
-  const data = await res.json();
-
-
-  return data.results.map((page: NotionRawPage) => {
-    const titleProp = Object.values(page.properties).find(
-      (p) => p.type === "title"
-    );
-    return {
+  return json.results.map((page: NotionRawPage) => {
+    const obj: NotionPage = {
       id: page.id,
-      title: titleProp?.title?.[0]?.plain_text ?? "無題",
+      title: page.properties.Name?.title?.[0]?.plain_text ?? "Untitled",
+      keywords: [], // 後で addPageKeywords が埋める
       createdTime: page.created_time,
       lastEditedTime: page.last_edited_time,
     };
+
+    /* すべての multi_select / select / status を走査して配列化 */
+    Object.entries(page.properties).forEach(([key, prop]: [string, any]) => {
+      if (prop.type === "multi_select") {
+        obj[key] = prop.multi_select.map((v: any) => v.name);
+      }
+      if (prop.type === "select" && prop.select) {
+        obj[key] = [prop.select.name]; // select は単一なので配列化
+      }
+    });
+
+    return obj as PageKW;
   });
 }

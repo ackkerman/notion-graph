@@ -9,21 +9,24 @@ import GraphPanel from "@/components/GraphPanel";
 import { getNotionToken } from "@/lib/notion/notionToken";
 
 import type { PageKW } from "@/lib/graph";
-import { fetchDatabasePages, NotionPage } from "@/lib/notion/notionDatabase";
-import { fetchDatabaseProperties, DbProperty } from "@/lib/notion/notionMeta";
+import { fetchDatabasePages } from "@/lib/notion/notionDatabase";
+import { fetchDatabaseProperties } from "@/lib/notion/notionMeta";
 import { addPageKeywords } from "@/lib/keyword";
-import { listDatabases, DbInfo } from "@/lib/notion/notionDbList";
+import { listDatabases } from "@/lib/notion/notionDbList";
+import type { DbInfo, DbProperty } from "@/lib/notion/types";
 
 const clientId = process.env.NEXT_PUBLIC_NOTION_CLIENT_ID!;
 const redirectUri = "http://localhost:3000/oauth/callback";
+const KW_PROP = "__keywords";
 
 export default function Page() {
   /* ───── state ─────────────────────────────── */
   const [authenticated, setAuthenticated] = useState(false);
   const [dbList, setDbList] = useState<DbInfo[]>([]);
   const [selectedDbId, setSelectedDbId] = useState<string | null>(null);
+  const [selectedProps, setSelectedProps] = useState<string[]>([KW_PROP]);
 
-  const [items, setItems] = useState<NotionPage[]>([]);
+  const [items, setItems] = useState<any[]>([]);
   const [itemsKW, setItemsKW] = useState<PageKW[] | null>(null);
   const [props, setProps] = useState<DbProperty[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -53,6 +56,22 @@ export default function Page() {
     } catch (e: any) {
       setError(e.message);
     }
+  };
+
+  /* ページタグの生成ヘルパー --------------- */
+  const pageTags = (p: any) => {
+    // ① keywords
+    const kw =
+      selectedProps.includes(KW_PROP)
+        ? p.keywords.map((t: string) => ({ text: t, kind: "kw" as const }))
+        : [];
+
+    // ② 選択プロパティ値
+    const pv = selectedProps.flatMap((prop) =>
+      (p[prop] ?? []).map((v: string) => ({ text: v, kind: "prop" as const }))
+    );
+
+    return [...kw, ...pv];
   };
 
   /* ───── ページ／プロパティ取得 ───────────── */
@@ -148,17 +167,51 @@ export default function Page() {
           </div>
 
           {/* Graph */}
-          {itemsKW && <GraphPanel pages={itemsKW} />}
+          {itemsKW && <GraphPanel pages={itemsKW} selectedProps={selectedProps} />}
 
           {/* Property list */}
           <details open className="rounded-lg border border-n-gray bg-white p-4 shadow-[var(--shadow-card)]">
             <summary className="cursor-pointer select-none text-sm font-semibold">
               📄 プロパティ ({props.length})
             </summary>
-            <ul className="ml-5 list-disc space-y-0.5 pt-2 text-sm">
+            <ul className="ml-5 space-y-1">
+
+              {/* キーワード用 */}
+              <li>
+                <label className="flex items-center gap-1 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={selectedProps.includes(KW_PROP)}
+                    onChange={() =>
+                      setSelectedProps((prev) =>
+                        prev.includes(KW_PROP)
+                          ? prev.filter((x) => x !== KW_PROP)
+                          : [...prev, KW_PROP]
+                      )
+                    }
+                  />
+                  <span>Keywords (形態素)</span>
+                </label>
+              </li>
+
+              {/* 他のプロパティ */}
               {props.map((p) => (
                 <li key={p.id}>
-                  {p.name} — <code>{p.type}</code>
+                  <label className="flex items-center gap-1 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={selectedProps.includes(p.name)}
+                      onChange={() =>
+                        setSelectedProps((prev) =>
+                          prev.includes(p.name)
+                            ? prev.filter((x) => x !== p.name)
+                            : [...prev, p.name]
+                        )
+                      }
+                    />
+                    <span>{p.name}</span>
+                    <code className="text-xs text-n-gray-600">— {p.type}</code>
+                  </label>
                 </li>
               ))}
             </ul>
@@ -175,21 +228,23 @@ export default function Page() {
                 <li key={p.id} className="space-y-1">
                   <div className="font-medium">{p.title}</div>
 
-                  {/* キーワードバッジ */}
-                  {"keywords" in p && (
-                    <div className="flex flex-wrap gap-1">
-                      {p.keywords.map((kw: string) => (
-                        <span
-                          key={kw}
-                          className="rounded-[var(--radius-btn)] bg-n-yellow-bg px-2 py-0.5 text-xs font-medium text-n-black"
-                        >
-                          {kw}
-                        </span>
-                      ))}
-                    </div>
-                  )}
+                  {/* タグ集合 */}
+                  <div className="flex flex-wrap gap-1">
+                    {pageTags(p).map(({ text, kind }) => (
+                      <span
+                        key={text + kind}
+                        className={`rounded-[var(--radius-btn)] px-2 py-0.5 text-xs font-medium ${
+                          kind === "kw"
+                            ? "bg-n-yellow-bg text-n-black"
+                            : "bg-n-green-bg text-n-black"
+                        }`}
+                      >
+                        {text}
+                      </span>
+                    ))}
+                  </div>
 
-                  <span className="text-xs text-n-gray-600">
+                  <span className="text-xs text-n-black/60">
                     {new Date(p.createdTime).toLocaleDateString()}
                   </span>
                 </li>

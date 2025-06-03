@@ -1,11 +1,7 @@
 // lib/notionMeta.ts
+/* eslint-disable @typescript-eslint/ban-ts-comment, @typescript-eslint/no-explicit-any */
 import { requireNotionToken } from "@/lib/notion/notionToken";
-
-export interface DbProperty {
-  id: string;
-  name: string;
-  type: string;
-}
+import type { DbProperty } from "@/lib/notion/types";
 
 /** データベースのプロパティ一覧を取得 */
 export async function fetchDatabaseProperties(

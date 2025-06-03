@@ -6,9 +6,9 @@ import { buildStyles } from "@/lib/cytoscape/styles";
 import type { PageKW } from "@/lib/graph";
 import { layouts } from "./GraphView";
 
-type Props = { pages: PageKW[] };
+type Props = { pages: PageKW[]; selectedProps: string[] };
 
-export default function GraphPanel({ pages }: Props) {
+export default function GraphPanel({ pages, selectedProps }: Props) {
   const viewRef = useRef<GraphViewHandle>(null);
   const [layout, setLayout] = useState<keyof typeof layouts>("cose-bilkent");
 
@@ -47,6 +47,7 @@ export default function GraphPanel({ pages }: Props) {
       <GraphView
         ref={viewRef}
         pages={pages}
+        selectedProps={selectedProps}
         layoutName={layout}
         stylesheet={stylesheet}
         height={550}

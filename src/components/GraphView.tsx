@@ -4,7 +4,7 @@
 import { useMemo, useRef, useImperativeHandle, forwardRef } from "react";
 import CytoscapeComponent from "react-cytoscapejs";
 import type { PageKW } from "@/lib/graph";
-import { buildKeywordGraph } from "@/lib/graph";
+import { buildGraph } from "@/lib/graph";
 
 import COSEBilkent from "cytoscape-cose-bilkent";
 import cola from "cytoscape-cola";
@@ -50,6 +50,8 @@ type LayoutName = keyof typeof layouts;
 type Props = {
   /** keywords 付きページ配列 */
   pages: PageKW[];
+  /** 選択されたプロパティ名の配列 */
+  selectedProps?: string[];
   /** レイアウト名 （例: "cose" "fcose" など）*/
   layoutName?: LayoutName;
   /** グラフ高さ */
@@ -66,8 +68,11 @@ export interface GraphViewHandle {
 }
 
 const GraphView = forwardRef<GraphViewHandle, Props>(
-  ({ pages, layoutName = "cose", height = 600, stylesheet }, ref) => {
-    const { nodes, edges } = useMemo(() => buildKeywordGraph(pages), [pages]);
+  ({ pages, selectedProps = [], layoutName = "cose", height = 600, stylesheet }, ref) => {
+    const { nodes, edges } = useMemo(
+      () => buildGraph(pages, { selectedProps }),
+      [pages, selectedProps]
+    );
     const cyRef = useRef<cytoscape.Core | null>(null);
 
     /* expose methods */

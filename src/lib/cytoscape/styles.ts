@@ -6,6 +6,8 @@ const tokens = {
   kwText:      "#2f3437",
   edgeColor:   "#787774",
   selectColor: "#64473a",
+  propFill:    "#9065b0",
+  propText:    "#2f3437",
 } as const;
 
 
@@ -60,6 +62,13 @@ export const buildStyles = ({
       "text-max-width": 60,
       "border-width": 1,
       "border-color": "var(--color-n-green)",
+    },
+  },
+
+  {
+    selector: 'node[type="prop"]',
+    style: {
+      "background-color": tokens.propFill
     },
   },
 

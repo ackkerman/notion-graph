@@ -1,56 +1,110 @@
 // lib/graph.ts
-/** 入力：キーワード付きページ */
-export interface PageKW {
+
+export type NodeKind = "page" | "keyword" | "prop";
+
+/** 入力：各ページに任意の multi_select 配列を含められる */
+export interface PageKW extends Record<string, any> {
   id: string;
   title: string;
   keywords: string[];
 }
 
-/** 出力：Cytoscape elements */
-export interface GraphData {
-  nodes: { data: { id: string; label: string; type: "page" | "keyword" } }[];
-  edges: { data: { id: string; source: string; target: string } }[];
+/** ノード/エッジの data 型 */
+export interface NodeData {
+  id: string;
+  label: string;
+  type: NodeKind;
+  /** prop ノードのみ保持 (e.g. "Tags") */
+  propName?: string;
+}
+export interface EdgeData {
+  id: string;
+  source: string;
+  target: string;
 }
 
-/** 文字を ID として安全化 */
-function slug(s: string) {
-  return s
+/** Cytoscape 用エクスポート型 */
+export interface GraphData {
+  nodes: { data: NodeData }[];
+  edges: { data: EdgeData }[];
+}
+
+/* ─────────────────── utils ─────────────────── */
+
+/** 文字列を ID 向けにサニタイズ */
+export const slug = (s: string) =>
+  s
     .toLowerCase()
     .normalize("NFKD")
-    .replace(/[^\w\-]+/g, "-")
+    .replace(/[^\w-]+/g, "-")
     .replace(/^-+|-+$/g, "");
+
+/* ノード ID プレフィックス */
+const PID = "p-";
+const KID = "k-";
+const PVID = "pv-";
+
+/* ─────────────────── main builder ─────────────────── */
+
+export interface BuildOptions {
+  /** グラフに含めたい multi_select / select プロパティ名 */
+  selectedProps?: string[];
 }
 
 /**
- * ページ・キーワード二部グラフを生成
- * - ページノード: "p-<pageId>"
- * - キーワードノード: "k-<slug(keyword)>"
- * - エッジ: ページ → キーワード
+ * ページ ↔ キーワード ↔ (optional) property-value のグラフを生成
  */
-export function buildKeywordGraph(pages: PageKW[]): GraphData {
+export function buildGraph(
+  pages: PageKW[],
+  { selectedProps = [] }: BuildOptions = {}
+): GraphData {
   const nodes: GraphData["nodes"] = [];
   const edges: GraphData["edges"] = [];
-  const seenKeywords = new Set<string>();
 
-  // ① ページノード
-  pages.forEach((p) => {
-    nodes.push({
-      data: { id: `p-${p.id}`, label: p.title, type: "page" },
-    });
+  const seen = new Set<string>(); // 全ノード重複防止
 
-    // ② キーワードノード + エッジ
-    p.keywords.forEach((kw) => {
-      const kwId = `k-${slug(kw)}`;
+  const pushNode = (d: NodeData) => {
+    if (!seen.has(d.id)) {
+      nodes.push({ data: d });
+      seen.add(d.id);
+    }
+  };
 
-      if (!seenKeywords.has(kwId)) {
-        nodes.push({
-          data: { id: kwId, label: kw, type: "keyword" },
-        });
-        seenKeywords.add(kwId);
-      }
+  const includeKw = selectedProps.includes("__keywords");
 
+  pages.forEach((page) => {
+    const pageId = PID + page.id;
+    pushNode({ id: pageId, label: page.title, type: "page" });
+
+    /* --- キーワード --- */
+    if (includeKw) {
+          
+    page.keywords.forEach((kw) => {
+      const kwId = KID + slug(kw);
+      pushNode({ id: kwId, label: kw, type: "keyword" });
       edges.push({
-        data: { id: `e-${p.id}-${kwId}`, source: `p-${p.id}`, target: kwId },
+        data: { id: `e-${pageId}-${kwId}`, source: pageId, target: kwId },
+      });
+    });
+    }
+
+
+    /* --- multi_select プロパティ --- */
+    selectedProps
+    .filter((prop) => prop !== "__keywords") // キーワードは別扱い
+    .forEach((prop) => {
+      const values: string[] = page[prop] ?? [];
+      values.forEach((val) => {
+        const pvId = `${PVID}${slug(prop)}-${slug(val)}`;
+        pushNode({
+          id: pvId,
+          label: val,
+          type: "prop",
+          propName: prop,
+        });
+        edges.push({
+          data: { id: `e-${pageId}-${pvId}`, source: pageId, target: pvId },
+        });
       });
     });
   });
