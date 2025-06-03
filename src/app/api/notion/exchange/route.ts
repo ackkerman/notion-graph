@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
+const redirectUri = process.env.NEXT_PUBLIC_NOTION_REDIRECT_URI! || "http://localhost:3000/oauth/callback";
+
 export async function POST(req: NextRequest) {
   const { code } = await req.json();
 
@@ -16,7 +18,7 @@ export async function POST(req: NextRequest) {
     body: JSON.stringify({
       grant_type: "authorization_code",
       code,
-      redirect_uri: "http://localhost:3000/oauth/callback",
+      redirect_uri: redirectUri
     }),
   });
 
