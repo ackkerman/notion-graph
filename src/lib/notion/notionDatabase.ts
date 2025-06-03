@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment, @typescript-eslint/no-explicit-any */
 
 import { requireNotionToken } from "@/lib/notion/notionToken";
-import { PageKW } from "@/lib/graph";
+import { PageKW } from "@/lib/cytoscape/graph";
 import type { NotionPage, NotionRawPage } from "@/lib/notion/types";
 
 /**

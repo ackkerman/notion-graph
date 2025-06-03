@@ -3,7 +3,7 @@ import { useRef, useState, useEffect } from "react";
 import GraphView, { GraphViewHandle } from "./GraphView";
 import LayoutControls from "./LayoutControls";
 import { buildStyles } from "@/lib/cytoscape/styles";
-import type { PageKW } from "@/lib/graph";
+import type { PageKW } from "@/lib/cytoscape/graph";
 import { layouts } from "./GraphView";
 
 type Props = { pages: PageKW[]; selectedProps: string[] };

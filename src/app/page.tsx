@@ -8,7 +8,7 @@ import GraphPanel from "@/components/GraphPanel";
 
 import { getNotionToken } from "@/lib/notion/notionToken";
 
-import type { PageKW } from "@/lib/graph";
+import type { PageKW } from "@/lib/cytoscape/graph";
 import { fetchDatabasePages } from "@/lib/notion/notionDatabase";
 import { fetchDatabaseProperties } from "@/lib/notion/notionMeta";
 import { addPageKeywords } from "@/lib/keyword";

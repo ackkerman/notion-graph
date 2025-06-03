@@ -1,32 +1,12 @@
-// lib/graph.ts
-
-export type NodeKind = "page" | "keyword" | "prop";
+// lib/ctyoscape/graph.ts
+/* eslint-disable @typescript-eslint/ban-ts-comment, @typescript-eslint/no-explicit-any */
+import type { NodeData, GraphData } from "@/lib/cytoscape/types";
 
 /** 入力：各ページに任意の multi_select 配列を含められる */
 export interface PageKW extends Record<string, any> {
   id: string;
   title: string;
   keywords: string[];
-}
-
-/** ノード/エッジの data 型 */
-export interface NodeData {
-  id: string;
-  label: string;
-  type: NodeKind;
-  /** prop ノードのみ保持 (e.g. "Tags") */
-  propName?: string;
-}
-export interface EdgeData {
-  id: string;
-  source: string;
-  target: string;
-}
-
-/** Cytoscape 用エクスポート型 */
-export interface GraphData {
-  nodes: { data: NodeData }[];
-  edges: { data: EdgeData }[];
 }
 
 /* ─────────────────── utils ─────────────────── */

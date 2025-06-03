@@ -3,8 +3,8 @@
 
 import { useMemo, useRef, useImperativeHandle, forwardRef } from "react";
 import CytoscapeComponent from "react-cytoscapejs";
-import type { PageKW } from "@/lib/graph";
-import { buildGraph } from "@/lib/graph";
+import type { PageKW } from "@/lib/cytoscape/graph";
+import { buildGraph } from "@/lib/cytoscape/graph";
 
 import COSEBilkent from "cytoscape-cose-bilkent";
 import cola from "cytoscape-cola";
