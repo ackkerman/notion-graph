@@ -25,10 +25,9 @@ export default function NodeDetailPanel({ nodeId, pages }: Props) {
 
   return (
     <section className="flex flex-col gap-2 rounded-[var(--radius-card)] border border-n-gray bg-n-bg p-3 text-sm">
-      <h2 className="font-medium">Node Detail</h2>
       {detail ? (
         <div className="space-y-1">
-          <div className="font-semibold">{detail.title}</div>
+          <h2 className="font-semibold">{detail.title}</h2>
           <ul className="ml-4 list-disc space-y-1">
             {Object.entries(detail)
               .filter(([k]) => !["id", "title", "keywords"].includes(k))
@@ -40,7 +39,11 @@ export default function NodeDetailPanel({ nodeId, pages }: Props) {
           </ul>
         </div>
       ) : (
-        <p className="text-n-gray-600">No node selected or unsupported node.</p>
+        <div className="space-y-1">
+          {/* TODO:Page以外のNodeKindの処理(引数受け取り処理から変更する必要あり) */}
+          <h2 className="font-semibold">Node Detail</h2>
+          <p className="text-n-gray-600">Unsupported node.</p>
+        </div>
       )}
     </section>
   );

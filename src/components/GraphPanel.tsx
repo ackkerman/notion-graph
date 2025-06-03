@@ -71,7 +71,7 @@ export default function GraphPanel({ pages, selectedProps }: Props) {
 
   return (
     <section className="flex flex-col gap-3 bg-white border border-n-gray rounded-[var(--radius-card)] p-3">
-      <LayoutControls {...controls} />
+      
       <GraphView
         ref={viewRef}
         pages={pages}
@@ -81,6 +81,8 @@ export default function GraphPanel({ pages, selectedProps }: Props) {
         height={600}
         onSelectNode={setSelectedNode}
       />
+      { selectedNode && <NodeDetailPanel nodeId={selectedNode} pages={pages} />}
+      <LayoutControls {...controls} />
       <StatsPanel
         pages={pages}
         selectedProps={selectedProps}
@@ -94,7 +96,7 @@ export default function GraphPanel({ pages, selectedProps }: Props) {
         version={version}
         onDelete={handleNodeDelete}
       />
-      <NodeDetailPanel nodeId={selectedNode} pages={pages} />
+      
     </section>
   );
 }
