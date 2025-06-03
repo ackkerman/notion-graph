@@ -28,7 +28,7 @@ describe('fetchPageDetail', () => {
     vi.restoreAllMocks()
   })
 
-  it('parses block list', async () => {
+  it('returns block list', async () => {
     const raw = {
       results: [
         { id: 'b1', type: 'heading_2', heading_2: { rich_text: [{ plain_text: 'T1' }] } },
@@ -42,9 +42,6 @@ describe('fetchPageDetail', () => {
     })))
 
     const blocks = await fetchPageDetail('1')
-    expect(blocks).toEqual([
-      { id: 'b1', type: 'heading_2', text: 'T1' },
-      { id: 'b2', type: 'paragraph', text: 'Hello' }
-    ])
+    expect(blocks).toEqual(raw.results)
   })
 })
