@@ -28,20 +28,12 @@ describe('fetchPageDetail', () => {
     vi.restoreAllMocks()
   })
 
-  it('parses various property types', async () => {
+  it('parses block list', async () => {
     const raw = {
-      id: '1',
-      created_time: '2025-06-01T00:00:00.000Z',
-      last_edited_time: '2025-06-01T00:00:00.000Z',
-      url: 'https://notion.so/page1',
-      properties: {
-        Name: { type: 'title', title: [{ plain_text: 'Sample' }] },
-        Tags: { type: 'multi_select', multi_select: [{ name: 'A' }, { name: 'B' }] },
-        Status: { type: 'status', status: { name: 'Todo' } },
-        URL: { type: 'url', url: 'https://example.com' },
-        Note: { type: 'rich_text', rich_text: [{ plain_text: 'hello' }] },
-        Created: { type: 'created_time', created_time: '2025-06-01T00:00:00.000Z' }
-      }
+      results: [
+        { id: 'b1', type: 'heading_2', heading_2: { rich_text: [{ plain_text: 'T1' }] } },
+        { id: 'b2', type: 'paragraph', paragraph: { rich_text: [{ plain_text: 'Hello' }] } }
+      ]
     }
 
     vi.stubGlobal('fetch', vi.fn(async () => ({
@@ -49,19 +41,10 @@ describe('fetchPageDetail', () => {
       json: async () => raw
     })))
 
-    const page = await fetchPageDetail('1')
-    expect(page).toEqual({
-      id: '1',
-      title: 'Sample',
-      keywords: [],
-      createdTime: raw.created_time,
-      lastEditedTime: raw.last_edited_time,
-      url: raw.url,
-      Tags: ['A', 'B'],
-      Status: ['Todo'],
-      URL: 'https://example.com',
-      Note: 'hello',
-      Created: raw.created_time
-    })
+    const blocks = await fetchPageDetail('1')
+    expect(blocks).toEqual([
+      { id: 'b1', type: 'heading_2', text: 'T1' },
+      { id: 'b2', type: 'paragraph', text: 'Hello' }
+    ])
   })
 })

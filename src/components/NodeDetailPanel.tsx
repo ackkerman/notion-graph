@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import type { PageKW } from "@/lib/cytoscape/graph";
+import type { NotionBlock } from "@/lib/notion/notionPage";
 import { fetchPageDetail } from "@/lib/notion/notionPage";
 
 interface Props {
@@ -8,22 +8,22 @@ interface Props {
 }
 
 export default function NodeDetailPanel({ nodeId }: Props) {
-  const [detail, setDetail] = useState<PageKW | null>(null);
+  const [blocks, setBlocks] = useState<NotionBlock[] | null>(null);
 
   useEffect(() => {
     if (!nodeId || !nodeId.startsWith("p-")) {
-      setDetail(null);
+      setBlocks(null);
       return;
     }
 
     let cancelled = false;
     const id = nodeId.slice(2);
     fetchPageDetail(id)
-      .then((p) => {
-        if (!cancelled) setDetail(p as PageKW);
+      .then((b) => {
+        if (!cancelled) setBlocks(b);
       })
       .catch(() => {
-        if (!cancelled) setDetail(null);
+        if (!cancelled) setBlocks(null);
       });
 
     return () => {
@@ -33,17 +33,15 @@ export default function NodeDetailPanel({ nodeId }: Props) {
 
   return (
     <section className="flex flex-col gap-2 rounded-[var(--radius-card)] border border-n-gray bg-n-bg p-3 text-sm">
-      {detail ? (
+      {blocks ? (
         <div className="space-y-1">
-          <h2 className="font-semibold">{detail.title}</h2>
+          <h2 className="font-semibold">Blocks</h2>
           <ul className="ml-4 list-disc space-y-1">
-            {Object.entries(detail)
-              .filter(([k]) => !["id", "title", "keywords"].includes(k))
-              .map(([k, v]) => (
-                <li key={k}>
-                  <span className="font-medium">{k}:</span> {Array.isArray(v) ? v.join(", ") : v}
-                </li>
-              ))}
+            {blocks.map((b) => (
+              <li key={b.id}>
+                <span className="font-medium">{b.type}:</span> {b.text}
+              </li>
+            ))}
           </ul>
         </div>
       ) : (

@@ -1,7 +1,18 @@
 import { requireNotionToken } from "@/lib/notion/notionToken";
-import type { NotionPage, NotionRawPage } from "@/lib/notion/types";
 
-export async function fetchPageDetail(pageId: string): Promise<NotionPage> {
+export interface NotionBlock {
+  id: string;
+  type: string;
+  text: string;
+}
+
+interface NotionBlockRaw {
+  id: string;
+  type: string;
+  [key: string]: unknown;
+}
+
+export async function fetchPageDetail(pageId: string): Promise<NotionBlock[]> {
   const token = requireNotionToken();
 
   const res = await fetch("/api/notion/page", {
@@ -15,38 +26,12 @@ export async function fetchPageDetail(pageId: string): Promise<NotionPage> {
     throw new Error(`Page fetch error: ${err.message || res.statusText}`);
   }
 
-  const page: NotionRawPage = await res.json();
+  const json = await res.json();
 
-  const obj: NotionPage = {
-    id: page.id,
-    title:
-      Array.isArray(page.properties.Name?.title) &&
-      page.properties.Name.title[0]?.plain_text
-        ? page.properties.Name.title[0].plain_text
-        : "Untitled",
-    createdTime: page.created_time,
-    lastEditedTime: page.last_edited_time,
-    url: page.url,
-    keywords: [],
-  };
-
-  Object.entries(page.properties).forEach(([key, prop]) => {
-    if (prop.type === "multi_select") {
-      obj[key] = (prop.multi_select as { name: string }[]).map((v) => v.name);
-    } else if (prop.type === "select" && prop.select) {
-      obj[key] = [(prop.select as { name: string }).name];
-    } else if (prop.type === "status" && prop.status) {
-      obj[key] = [(prop.status as { name: string }).name];
-    } else if (prop.type === "url" && typeof prop.url === "string") {
-      obj[key] = prop.url;
-    } else if (prop.type === "rich_text") {
-      obj[key] = (prop.rich_text as { plain_text: string }[])
-        .map((t) => t.plain_text)
-        .join("");
-    } else if (prop.type === "created_time" && prop.created_time) {
-      obj[key] = String(prop.created_time);
-    }
+  return (json.results as NotionBlockRaw[]).map((b) => {
+    const detail = b[b.type] as { rich_text?: { plain_text: string }[] };
+    const rich = detail?.rich_text || [];
+    const text = rich.map((t) => t.plain_text).join("");
+    return { id: b.id as string, type: b.type as string, text };
   });
-
-  return obj;
 }
