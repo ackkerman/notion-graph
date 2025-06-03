@@ -82,7 +82,7 @@ const GraphView = forwardRef<GraphViewHandle, Props>(
     const cyRef = useRef<cytoscape.Core | null>(null);
 
     /* expose methods */
-    useImperativeHandle(ref, () => ({
+  useImperativeHandle(ref, () => ({
       fit: () => cyRef.current?.fit(),
       zoomIn: () => cyRef.current?.zoom(cyRef.current.zoom() * 1.2),
       zoomOut: () => cyRef.current?.zoom(cyRef.current.zoom() * 0.8),
@@ -116,9 +116,27 @@ const GraphView = forwardRef<GraphViewHandle, Props>(
       json: () => cyRef.current?.json(),
     }));
 
+    const attachHandlers = (cy: cytoscape.Core) => {
+      const openPage = (evt: cytoscape.EventObject) => {
+        const id: string = evt.target.id();
+        if (!id.startsWith("p-")) return;
+        const pageId = id.slice(2).replace(/-/g, "");
+        const url = `https://www.notion.so/${pageId}`;
+        window.open(url, "_blank");
+      };
+      cy.on("tap", "node[type='page']", openPage);
+      return () => {
+        cy.off("tap", "node[type='page']", openPage);
+      };
+    };
+
     return (
       <CytoscapeComponent
-        cy={(cy) => (cyRef.current = cy as unknown as cytoscape.Core)}
+        cy={(cy) => {
+          const core = cy as unknown as cytoscape.Core;
+          cyRef.current = core;
+          attachHandlers(core);
+        }}
         elements={[...nodes, ...edges]}
         layout={layouts[layoutName]}
         stylesheet={stylesheet}

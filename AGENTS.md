@@ -277,5 +277,5 @@ graph TD
 
 * [ ] Graph Clustering
 * [x] Adding view of connections and cut-out function
-* [ ] Jump to original page from graph
+* [x] Jump to original page from graph
 * [ ] Coloring by status or other property as hue
