@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { fetchPageDetail } from "@/lib/notion/notionPage";
+import NotionRenderer from "@/components/NotionRenderer";
 import { renderBlocks, sanitizeHtml } from "@/lib/notion/renderBlocks";
 
 interface Props {
@@ -19,9 +20,9 @@ export default function NodeDetailPanel({ nodeId }: Props) {
     let cancelled = false;
     const id = nodeId.slice(2);
     fetchPageDetail(id)
-      .then((b) => {
+      .then(async(b) => {
         if (cancelled) return;
-        const raw = renderBlocks(b);
+        const raw = await renderBlocks(b);
         setHtml(sanitizeHtml(raw));
       })
       .catch(() => {
@@ -38,7 +39,7 @@ export default function NodeDetailPanel({ nodeId }: Props) {
       {html ? (
         <div className="space-y-1">
           <h2 className="font-semibold">Blocks</h2>
-          <div dangerouslySetInnerHTML={{ __html: html }} />
+          <NotionRenderer html={html} />
         </div>
       ) : (
         <div className="space-y-1">
