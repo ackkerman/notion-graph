@@ -105,8 +105,8 @@ export default function Page() {
   }, [selectedDbId]);
 
   /* ───── キーワード抽出ボタン ───────────── */
-  const handleExtract = () => {
-    const enriched = addPageKeywords(items, 10);
+  const handleExtract = async() => {
+    const enriched = await addPageKeywords(items, 10);
     setSelectedProps((prev) =>
       prev.includes(KW_PROP) ? prev : [...prev, KW_PROP]
     );
