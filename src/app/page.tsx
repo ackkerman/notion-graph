@@ -95,6 +95,7 @@ export default function Page() {
     const token = getNotionToken();
     if (!token) return;
     setAuthenticated(true);
+    setItems([]);
     loadDatabaseList();
   }, []);
 
@@ -167,7 +168,7 @@ export default function Page() {
           </div>
 
           {/* Graph */}
-          {itemsKW && <GraphPanel pages={itemsKW} selectedProps={selectedProps} />}
+          {(itemsKW || items.length > 0) && <GraphPanel pages={itemsKW || items} selectedProps={selectedProps} />}
 
           {/* Property list */}
           <details open className="rounded-lg border border-n-gray bg-white p-4 shadow-[var(--shadow-card)]">
