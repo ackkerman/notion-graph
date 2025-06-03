@@ -1,5 +1,6 @@
 "use client";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import { ChevronDown, ChevronRight, BarChart3 } from "lucide-react";
 import type { PageKW } from "@/lib/cytoscape/graph";
 import { buildGraph } from "@/lib/cytoscape/graph";
 import type { GraphViewHandle } from "./GraphView";
@@ -13,6 +14,8 @@ type Props = {
 };
 
 export default function StatsPanel({ pages, selectedProps, viewRef, version }: Props) {
+  const [collapsed, setCollapsed] = useState(false);
+  
   const stats = useMemo(() => {
     void version;
     const graph = viewRef.current
@@ -22,18 +25,29 @@ export default function StatsPanel({ pages, selectedProps, viewRef, version }: P
   }, [pages, selectedProps, viewRef, version]);
 
   return (
-    <section className="rounded-[var(--radius-card)] border border-n-gray bg-white p-3 text-sm">
-      <h2 className="mb-2 font-medium">Graph Stats</h2>
-      <p>Nodes: {stats.nodeCount}</p>
-      <p>Edges: {stats.edgeCount}</p>
-      <p>Avg. Degree: {stats.avgDegree.toFixed(2)}</p>
-      <ul className="mt-2 list-disc pl-5">
-        {stats.topCentralNodes.map((n) => (
-          <li key={n.id}>
-            {n.label} <span className="text-xs text-n-gray-600">({n.degree})</span>
-          </li>
-        ))}
-      </ul>
+    <section className="flex flex-col gap-2 rounded-[var(--radius-card)] border border-n-gray bg-white p-3 text-sm">
+      <button
+        onClick={() => setCollapsed((c) => !c)}
+        className="flex w-full items-center gap-1 font-medium"
+      >
+        {collapsed ? <ChevronRight size={18} /> : <ChevronDown size={18} />}
+        <BarChart3 size={18} />
+        Graph Stats
+      </button>
+      {!collapsed && (
+        <>
+          <p>Nodes: {stats.nodeCount}</p>
+          <p>Edges: {stats.edgeCount}</p>
+          <p>Avg. Degree: {stats.avgDegree.toFixed(2)}</p>
+          <ul className="mt-2 list-disc pl-5">
+            {stats.topCentralNodes.map((n) => (
+              <li key={n.id}>
+                {n.label} <span className="text-xs text-n-gray-600">({n.degree})</span>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
     </section>
   );
 }
