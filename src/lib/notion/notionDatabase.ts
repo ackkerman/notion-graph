@@ -24,15 +24,25 @@ export async function fetchDatabasePages(dbId: string): Promise<PageKW[]> {
       keywords: [], // 後で addPageKeywords が埋める
       createdTime: page.created_time,
       lastEditedTime: page.last_edited_time,
+      url: page.url,
     };
 
-    /* すべての multi_select / select / status を走査して配列化 */
-    Object.entries(page.properties).forEach(([key, prop]: [string, any]) => {
+    /* すべてのプロパティを走査して抽出 */
+    Object.entries(page.properties).forEach(([key, prop]) => {
       if (prop.type === "multi_select") {
-        obj[key] = prop.multi_select.map((v: any) => v.name);
-      }
-      if (prop.type === "select" && prop.select) {
-        obj[key] = [prop.select.name]; // select は単一なので配列化
+        obj[key] = (prop.multi_select as { name: string }[]).map((v) => v.name);
+      } else if (prop.type === "select" && prop.select) {
+        obj[key] = [(prop.select as { name: string }).name];
+      } else if (prop.type === "status" && prop.status) {
+        obj[key] = [(prop.status as { name: string }).name];
+      } else if (prop.type === "url" && typeof prop.url === "string") {
+        obj[key] = prop.url;
+      } else if (prop.type === "rich_text") {
+        obj[key] = (prop.rich_text as { plain_text: string }[])
+          .map((t) => t.plain_text)
+          .join("");
+      } else if (prop.type === "created_time" && prop.created_time) {
+        obj[key] = String(prop.created_time);
       }
     });
 

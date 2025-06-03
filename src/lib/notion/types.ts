@@ -12,18 +12,20 @@ export interface NotionPage {
   title: string;
   createdTime: string;
   lastEditedTime: string;
+  url: string;
   keywords?: string[];
   [key: string]: string | string[] | undefined;
 }
 
-export interface NotionRawPage  {
+export interface NotionProperty {
+  type: string;
+  [key: string]: unknown;
+}
+
+export interface NotionRawPage {
   id: string;
   created_time: string;
   last_edited_time: string;
-  properties: {
-    [key: string]: {
-      type: string;
-      title?: { plain_text: string }[];
-    };
-  };
-};
+  url: string;
+  properties: Record<string, NotionProperty>;
+}
