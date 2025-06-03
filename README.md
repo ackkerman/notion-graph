@@ -70,7 +70,9 @@ pnpm dev
 
 ## 📄 License
 
+Apache License V2.0 
 
+Copyright 2025 Ackkerman
 
 ## 🙏 Acknowledgements
 
