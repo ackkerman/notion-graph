@@ -91,3 +91,22 @@ export function buildGraph(
 
   return { nodes, edges };
 }
+
+/* ─────────────────── helpers ─────────────────── */
+
+/** 指定ノードに接続するノード一覧を取得 */
+export function getConnectedNodes(
+  graph: GraphData,
+  nodeId: string
+): NodeData[] {
+  const nodeMap = new Map(graph.nodes.map((n) => [n.data.id, n.data]));
+  const connected = new Set<string>();
+  graph.edges.forEach((e) => {
+    if (e.data.source === nodeId) connected.add(e.data.target);
+    if (e.data.target === nodeId) connected.add(e.data.source);
+  });
+  return Array.from(connected)
+    .map((id) => nodeMap.get(id))
+    .filter(Boolean) as NodeData[];
+}
+

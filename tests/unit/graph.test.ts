@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { slug, buildGraph } from '@/lib/cytoscape/graph'
+import { slug, buildGraph, getConnectedNodes } from '@/lib/cytoscape/graph'
 
 const samplePages = [
   { id: '1', title: 'Page One', keywords: ['Alpha', 'Beta'], tags: ['Tag1'] },
@@ -48,5 +48,14 @@ describe('buildGraph', () => {
     const g = buildGraph(pages, { selectedProps: ['__keywords', 'tags'] })
     expect(g.nodes.length).toBe(7) // 2 pages + 3 keywords + 2 tags
     expect(g.edges.length).toBe(7) // 4 keyword edges + 3 tag edges
+  })
+})
+
+describe('getConnectedNodes', () => {
+  it('returns nodes connected to the given node id', () => {
+    const g = buildGraph(samplePages, { selectedProps: ['__keywords', 'tags'] })
+    const con = getConnectedNodes(g, 'p-1')
+    const labels = con.map((n) => n.label).sort()
+    expect(labels).toEqual(['Alpha', 'Beta', 'Tag1'])
   })
 })
