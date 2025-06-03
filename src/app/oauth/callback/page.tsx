@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { saveNotionToken } from "@/lib/notion/notionToken";
 
-export default function OAuthCallback() {
+function Callback() {
   const params = useSearchParams();
   const router = useRouter();
 
@@ -34,7 +34,17 @@ export default function OAuthCallback() {
         console.error(e);
       }
     })();
-  }, [params]);
+  }, [params, router]);
 
   return <p>認証中です…</p>;
+}
+
+export default function OAuthCallback() {
+  return (
+    <div className="flex items-center justify-center h-screen">
+      <Suspense fallback={<p>Loading...</p>}>
+        <Callback />
+      </Suspense>
+    </div>
+  );
 }
