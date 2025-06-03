@@ -17,10 +17,14 @@ export async function fetchDatabasePages(dbId: string): Promise<PageKW[]> {
 
   const json = await res.json();
 
+  console.log("Fetched pages:", json)
+
   return json.results.map((page: NotionRawPage) => {
     const obj: NotionPage = {
       id: page.id,
-      title: page.properties.Name?.title?.[0]?.plain_text ?? "Untitled",
+      title: Array.isArray(page.properties.Name?.title) && page.properties.Name.title[0]?.plain_text
+        ? page.properties.Name.title[0].plain_text
+        : "Untitled",
       keywords: [], // 後で addPageKeywords が埋める
       createdTime: page.created_time,
       lastEditedTime: page.last_edited_time,
