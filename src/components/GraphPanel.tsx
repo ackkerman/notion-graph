@@ -81,7 +81,9 @@ export default function GraphPanel({ pages, selectedProps }: Props) {
         height={600}
         onSelectNode={setSelectedNode}
       />
-      { selectedNode && <NodeDetailPanel nodeId={selectedNode} pages={pages} />}
+      {selectedNode && (
+        <NodeDetailPanel nodeId={selectedNode} pages={pages} viewRef={viewRef} />
+      )}
       <LayoutControls {...controls} />
       <StatsPanel
         pages={pages}
