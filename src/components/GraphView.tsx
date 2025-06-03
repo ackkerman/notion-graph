@@ -53,6 +53,8 @@ type Props = {
   pages: PageKW[];
   /** 選択されたプロパティ名の配列 */
   selectedProps?: string[];
+  /** ページ色分けに使うプロパティ名 */
+  colorProp?: string;
   /** レイアウト名 （例: "cose" "fcose" など）*/
   layoutName?: LayoutName;
   /** グラフ高さ */
@@ -74,10 +76,13 @@ export interface GraphViewHandle {
 }
 
 const GraphView = forwardRef<GraphViewHandle, Props>(
-  ({ pages, selectedProps = [], layoutName = "cose", height = 600, stylesheet }, ref) => {
+  (
+    { pages, selectedProps = [], colorProp, layoutName = "cose", height = 600, stylesheet },
+    ref
+  ) => {
     const { nodes, edges } = useMemo(
-      () => buildGraph(pages, { selectedProps }),
-      [pages, selectedProps]
+      () => buildGraph(pages, { selectedProps, colorProp }),
+      [pages, selectedProps, colorProp]
     );
     const cyRef = useRef<cytoscape.Core | null>(null);
 

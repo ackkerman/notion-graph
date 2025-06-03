@@ -7,6 +7,8 @@ export interface PageKW extends Record<string, any> {
   id: string;
   title: string;
   keywords: string[];
+  /** select/status の色マップ */
+  __propColors?: Record<string, string>;
 }
 
 /* ─────────────────── utils ─────────────────── */
@@ -24,11 +26,30 @@ const PID = "p-";
 const KID = "k-";
 const PVID = "pv-";
 
+const colorMap: Record<string, string> = {
+  default: "var(--color-n-gray-bg)",
+  gray: "var(--color-n-gray-bg)",
+  brown: "var(--color-n-brown-bg)",
+  orange: "var(--color-n-orange-bg)",
+  yellow: "var(--color-n-yellow-bg)",
+  green: "var(--color-n-green-bg)",
+  blue: "var(--color-n-blue-bg)",
+  purple: "var(--color-n-purple-bg)",
+  pink: "var(--color-n-pink-bg)",
+  red: "var(--color-n-red-bg)",
+};
+
+const DEFAULT_PAGE_COLOR = colorMap.blue;
+
+const notionColorToCss = (c?: string) => colorMap[c ?? ""] ?? colorMap.default;
+
 /* ─────────────────── main builder ─────────────────── */
 
 export interface BuildOptions {
   /** グラフに含めたい multi_select / select プロパティ名 */
   selectedProps?: string[];
+  /** ページの色分けに使う select/status プロパティ名 */
+  colorProp?: string;
 }
 
 /**
@@ -36,7 +57,7 @@ export interface BuildOptions {
  */
 export function buildGraph(
   pages: PageKW[],
-  { selectedProps = [] }: BuildOptions = {}
+  { selectedProps = [], colorProp }: BuildOptions = {}
 ): GraphData {
   const nodes: GraphData["nodes"] = [];
   const edges: GraphData["edges"] = [];
@@ -54,7 +75,9 @@ export function buildGraph(
 
   pages.forEach((page) => {
     const pageId = PID + page.id;
-    pushNode({ id: pageId, label: page.title, type: "page" });
+    const colorName = colorProp ? page.__propColors?.[colorProp] : undefined;
+    const color = colorName ? notionColorToCss(colorName) : DEFAULT_PAGE_COLOR;
+    pushNode({ id: pageId, label: page.title, type: "page", color });
 
     /* --- キーワード --- */
     if (includeKw) {

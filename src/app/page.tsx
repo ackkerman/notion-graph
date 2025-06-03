@@ -29,6 +29,7 @@ export default function Page() {
   const [items, setItems] = useState<any[]>([]);
   const [itemsKW, setItemsKW] = useState<PageKW[] | null>(null);
   const [props, setProps] = useState<DbProperty[]>([]);
+  const [colorProp, setColorProp] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   /* ───── OAuth 認可 ───────────────────────── */
@@ -79,7 +80,11 @@ export default function Page() {
     try {
       // プロパティ
       const meta = await fetchDatabaseProperties(dbId);
-      setProps(meta.filter((p) => p.type === "multi_select" || p.type === "select"));
+      setProps(
+        meta.filter((p) => p.type === "multi_select" || p.type === "select" || p.type === "status")
+      );
+      const statusProp = meta.find((p) => p.type === "status");
+      setColorProp(statusProp ? statusProp.name : null);
 
       // ページ
       const pages = await fetchDatabasePages(dbId);
@@ -171,7 +176,9 @@ export default function Page() {
           </div>
 
           {/* Graph */}
-          {(itemsKW || items.length > 0) && <GraphPanel pages={itemsKW || items} selectedProps={selectedProps} />}
+          {(itemsKW || items.length > 0) && (
+            <GraphPanel pages={itemsKW || items} selectedProps={selectedProps} colorProp={colorProp || undefined} />
+          )}
 
           {/* Property list */}
           <details open className="rounded-lg border border-n-gray bg-white p-4 shadow-[var(--shadow-card)]">

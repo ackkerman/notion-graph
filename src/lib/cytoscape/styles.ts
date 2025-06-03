@@ -37,7 +37,7 @@ export const buildStyles = ({
   {
     selector: 'node[type="page"]',
     style: {
-      "background-color": tokens.pageFill,
+      "background-color": "data(color)",
       opacity: 0.8,
       color: tokens.pageText,
       width: 60,

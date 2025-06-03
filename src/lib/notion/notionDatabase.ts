@@ -25,17 +25,24 @@ export async function fetchDatabasePages(dbId: string): Promise<PageKW[]> {
       createdTime: page.created_time,
       lastEditedTime: page.last_edited_time,
     };
+    const colorMap: Record<string, string> = {};
 
     /* すべての multi_select / select / status を走査して配列化 */
     Object.entries(page.properties).forEach(([key, prop]: [string, any]) => {
       if (prop.type === "multi_select") {
         obj[key] = prop.multi_select.map((v: any) => v.name);
+        // multi_select は色をページ側には持たない
       }
       if (prop.type === "select" && prop.select) {
-        obj[key] = [prop.select.name]; // select は単一なので配列化
+        obj[key] = [prop.select.name];
+        colorMap[key] = prop.select.color;
+      }
+      if (prop.type === "status" && prop.status) {
+        obj[key] = [prop.status.name];
+        colorMap[key] = prop.status.color;
       }
     });
 
-    return obj as PageKW;
+    return { ...(obj as PageKW), __propColors: colorMap };
   });
 }

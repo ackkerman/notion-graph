@@ -49,4 +49,14 @@ describe('buildGraph', () => {
     expect(g.nodes.length).toBe(7) // 2 pages + 3 keywords + 2 tags
     expect(g.edges.length).toBe(7) // 4 keyword edges + 3 tag edges
   })
+
+  it('applies page color via colorProp', () => {
+    const pages = [
+      { id: '1', title: 'First', keywords: [], __propColors: { Status: 'red' } },
+      { id: '2', title: 'Second', keywords: [], __propColors: { Status: 'blue' } },
+    ] as any
+    const g = buildGraph(pages, { colorProp: 'Status' })
+    expect(g.nodes.find(n => n.data.id === 'p-1')?.data.color).toBe('var(--color-n-red-bg)')
+    expect(g.nodes.find(n => n.data.id === 'p-2')?.data.color).toBe('var(--color-n-blue-bg)')
+  })
 })
