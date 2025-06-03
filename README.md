@@ -16,8 +16,8 @@
 
 ## ✨ Features
 
-|                                        | Description                                                                         |
-| -------------------------------------- | ----------------------------------------------------------------------------------- |
+| Features | Description  |
+| --- | --- |
 | 🔐 **OAuth 2.0 (PKCE)**                | One-click login with your own Notion integration — no server secrets.               |
 | 🗂 **Dynamic property mapping**        | Select any *multi-select* / *select* property at runtime and see it as graph nodes. |
 | 🧠 **Lindera WASM keyword extraction** | Japanese tokenisation powered by Rust/Lindera running in the browser.               |
@@ -27,7 +27,7 @@
 
 ## 📸 Demo
 
-[Live demo](https://notion-graph-gray.vercel.app/)
+[Live demo (on Vercel)](https://notion-graph-gray.vercel.app/)
 
 ![](./assets/usage.gif)
 
@@ -60,18 +60,17 @@ pnpm dev
 
 ## 🗺️ Roadmap
 
-* [ ] Dark mode + automatic palette
-* [ ] Edge weight by keyword overlap
-* [ ] Export graph as PNG / JSON
-* [ ] Re-run keyword extraction inside Worker
-* [ ] Multi-database merge view
+* [ ] Graph Clustering
+* [ ] Adding view of connections and cut-out function
+* [ ] Jump to original page from graph
+* [ ] Coloring by status or other property as hue
 
 > PRs & discussions are welcome! See [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 
 ## 📄 License
 
-Apache-2.0 © 2025 Your-Name
+
 
 ## 🙏 Acknowledgements
 
