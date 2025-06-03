@@ -16,7 +16,7 @@ import { listDatabases } from "@/lib/notion/notionDbList";
 import type { DbInfo, DbProperty } from "@/lib/notion/types";
 
 const clientId = process.env.NEXT_PUBLIC_NOTION_CLIENT_ID!;
-const redirectUri = "http://localhost:3000/oauth/callback";
+const redirectUri = process.env.NEXT_PUBLIC_NOTION_REDIRECT_URI! || "http://localhost:3000/oauth/callback";
 const KW_PROP = "__keywords";
 
 export default function Page() {
