@@ -11,6 +11,11 @@ describe('slug', () => {
     expect(slug('Hello World!')).toBe('hello-world')
     expect(slug(' Foo_Bar ')).toBe('foo_bar')
   })
+
+  it('normalizes accented characters', () => {
+    expect(slug('ÀÉÎÖÜ')).toBe('a-e-i-o-u')
+    expect(slug('café — bar')).toBe('cafe-bar')
+  })
 })
 
 describe('buildGraph', () => {
@@ -33,5 +38,15 @@ describe('buildGraph', () => {
     // pages + tags (3 unique)
     expect(g.nodes.length).toBe(5)
     expect(g.edges.length).toBe(3)
+  })
+
+  it('deduplicates keywords and property values across pages', () => {
+    const pages = [
+      { id: '1', title: 'First', keywords: ['Alpha', 'Beta'], tags: ['Tag1', 'Tag2'] },
+      { id: '2', title: 'Second', keywords: ['Beta', 'Gamma'], tags: ['Tag1'] },
+    ]
+    const g = buildGraph(pages, { selectedProps: ['__keywords', 'tags'] })
+    expect(g.nodes.length).toBe(7) // 2 pages + 3 keywords + 2 tags
+    expect(g.edges.length).toBe(7) // 4 keyword edges + 3 tag edges
   })
 })
