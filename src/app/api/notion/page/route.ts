@@ -1,0 +1,16 @@
+import { NextRequest, NextResponse } from "next/server";
+
+export async function POST(req: NextRequest) {
+  const { pageId, token } = await req.json();
+
+  const res = await fetch(`https://api.notion.com/v1/pages/${pageId}`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Notion-Version": "2022-06-28",
+    },
+  });
+
+  const data = await res.json();
+  return NextResponse.json(data, { status: res.status });
+}

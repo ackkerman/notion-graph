@@ -1,27 +1,35 @@
 "use client";
 import { useEffect, useState } from "react";
 import type { PageKW } from "@/lib/cytoscape/graph";
+import { fetchPageDetail } from "@/lib/notion/notionPage";
 
 interface Props {
   nodeId: string | null;
-  pages: PageKW[];
 }
 
-export default function NodeDetailPanel({ nodeId, pages }: Props) {
+export default function NodeDetailPanel({ nodeId }: Props) {
   const [detail, setDetail] = useState<PageKW | null>(null);
 
   useEffect(() => {
-    if (!nodeId) {
+    if (!nodeId || !nodeId.startsWith("p-")) {
       setDetail(null);
       return;
     }
-    if (nodeId.startsWith("p-")) {
-      const page = pages.find((p) => `p-${p.id}` === nodeId) || null;
-      setDetail(page);
-    } else {
-      setDetail(null);
-    }
-  }, [nodeId, pages]);
+
+    let cancelled = false;
+    const id = nodeId.slice(2);
+    fetchPageDetail(id)
+      .then((p) => {
+        if (!cancelled) setDetail(p as PageKW);
+      })
+      .catch(() => {
+        if (!cancelled) setDetail(null);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [nodeId]);
 
   return (
     <section className="flex flex-col gap-2 rounded-[var(--radius-card)] border border-n-gray bg-n-bg p-3 text-sm">
