@@ -12,7 +12,7 @@
 
 | Release | CI  | License |
 | --- | --- | -- |
-| ![version](https://img.shields.io/github/v/tag/ackkerman/notion-graph?label=version) | ![build](https://img.shields.io/github/actions/workflow/status/ackkerman/notion-graph/ci.yml?label=build) | ![license](https://img.shields.io/github/license/ackkerman/notion-graph) |
+| ![version](https://img.shields.io/github/v/tag/ackkerman/notion-graph?label=version) | ![build](https://img.shields.io/github/actions/workflow/status/ackkerman/notion-graph/ci.yml?label=build) | ![GitHub License](https://img.shields.io/github/license/ackkerman/notion-graph) |
 
 ## ✨ Features
 
