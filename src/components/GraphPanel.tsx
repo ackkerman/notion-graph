@@ -3,6 +3,7 @@ import { useRef, useState, useEffect } from "react";
 import GraphView, { GraphViewHandle } from "./GraphView";
 import LayoutControls from "./LayoutControls";
 import StatsPanel from "./StatsPanel";
+import NodeListPanel from "./NodeListPanel";
 import { buildStyles } from "@/lib/cytoscape/styles";
 import type { PageKW } from "@/lib/cytoscape/graph";
 import { layouts } from "./GraphView";
@@ -10,7 +11,7 @@ import { layouts } from "./GraphView";
 type Props = { pages: PageKW[]; selectedProps: string[] };
 
 export default function GraphPanel({ pages, selectedProps }: Props) {
-  const viewRef = useRef<GraphViewHandle>(null);
+  const viewRef = useRef<GraphViewHandle | null>(null);
   const [layout, setLayout] = useState<keyof typeof layouts>("cose-bilkent");
 
   /* トグル用 state（お好みで拡張） */
@@ -54,6 +55,7 @@ export default function GraphPanel({ pages, selectedProps }: Props) {
         height={550}
       />
       <StatsPanel pages={pages} selectedProps={selectedProps} />
+      <NodeListPanel viewRef={viewRef} />
     </section>
   );
 }
