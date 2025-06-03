@@ -65,6 +65,8 @@ export interface GraphViewHandle {
   zoomIn: () => void;
   zoomOut: () => void;
   setLayout: (l: LayoutName) => void;
+  removeNode: (id: string) => void;
+  getNodesByDegree: () => { id: string; label: string; degree: number }[];
 }
 
 const GraphView = forwardRef<GraphViewHandle, Props>(
@@ -81,11 +83,26 @@ const GraphView = forwardRef<GraphViewHandle, Props>(
       zoomIn: () => cyRef.current?.zoom(cyRef.current.zoom() * 1.2),
       zoomOut: () => cyRef.current?.zoom(cyRef.current.zoom() * 0.8),
       setLayout: (l: LayoutName) => cyRef.current?.layout(layouts[l]).run(),
+      removeNode: (id: string) => {
+        const ele = cyRef.current?.getElementById(id);
+        ele?.remove();
+      },
+      getNodesByDegree: () => {
+        if (!cyRef.current) return [];
+        return cyRef.current
+          .nodes()
+          .map((n) => ({
+            id: n.id(),
+            label: n.data("label"),
+            degree: n.connectedEdges().length,
+          }))
+          .sort((a, b) => b.degree - a.degree);
+      },
     }));
 
     return (
       <CytoscapeComponent
-        cy={(cy) => (cyRef.current = cy)}
+        cy={(cy) => (cyRef.current = cy as unknown as cytoscape.Core)}
         elements={[...nodes, ...edges]}
         layout={layouts[layoutName]}
         stylesheet={stylesheet}
