@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { ChevronDown, ChevronRight } from "lucide-react";
 import type { PageKW } from "@/lib/cytoscape/graph";
 import type { GraphViewHandle } from "./GraphView";
 import type { NodeData } from "@/lib/cytoscape/types";
@@ -18,6 +19,7 @@ export default function NodeDetailPanel({ nodeId, pages, viewRef }: Props) {
   type Detail = PageDetail | KeywordDetail | PropDetail | null;
 
   const [detail, setDetail] = useState<Detail>(null);
+  const [collapsed, setCollapsed] = useState(false);
 
   useEffect(() => {
     if (!nodeId) {
@@ -68,6 +70,10 @@ export default function NodeDetailPanel({ nodeId, pages, viewRef }: Props) {
     setDetail(null);
   }, [nodeId, pages, viewRef]);
 
+  useEffect(() => {
+    setCollapsed(false);
+  }, [detail]);
+
   return (
     <section className="flex flex-col gap-2 rounded-[var(--radius-card)] border border-n-gray bg-n-bg p-3 text-sm">
       {detail?.type === "page" && (
@@ -86,24 +92,42 @@ export default function NodeDetailPanel({ nodeId, pages, viewRef }: Props) {
       )}
       {detail?.type === "keyword" && (
         <div className="space-y-1">
-          <h2 className="font-semibold">{detail.keyword}</h2>
-          <ul className="ml-4 list-disc space-y-1">
-            {detail.pages.map((p) => (
-              <li key={p.id}>{p.title}</li>
-            ))}
-          </ul>
+          <div className="flex items-center gap-1">
+            <h2 className="font-semibold flex-1">{detail.keyword}</h2>
+            {detail.pages.length > 0 && (
+              <button onClick={() => setCollapsed((c) => !c)}>
+                {collapsed ? <ChevronRight size={14} /> : <ChevronDown size={14} />}
+              </button>
+            )}
+          </div>
+          {!collapsed && (
+            <ul className="ml-4 list-disc space-y-1">
+              {detail.pages.map((p) => (
+                <li key={p.id}>{p.title}</li>
+              ))}
+            </ul>
+          )}
         </div>
       )}
       {detail?.type === "prop" && (
         <div className="space-y-1">
-          <h2 className="font-semibold">
-            {detail.prop}: {detail.value}
-          </h2>
-          <ul className="ml-4 list-disc space-y-1">
-            {detail.pages.map((p) => (
-              <li key={p.id}>{p.title}</li>
-            ))}
-          </ul>
+          <div className="flex items-center gap-1">
+            <h2 className="font-semibold flex-1">
+              {detail.prop}: {detail.value}
+            </h2>
+            {detail.pages.length > 0 && (
+              <button onClick={() => setCollapsed((c) => !c)}>
+                {collapsed ? <ChevronRight size={14} /> : <ChevronDown size={14} />}
+              </button>
+            )}
+          </div>
+          {!collapsed && (
+            <ul className="ml-4 list-disc space-y-1">
+              {detail.pages.map((p) => (
+                <li key={p.id}>{p.title}</li>
+              ))}
+            </ul>
+          )}
         </div>
       )}
       {!detail && (
