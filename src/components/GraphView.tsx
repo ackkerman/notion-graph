@@ -59,6 +59,7 @@ type Props = {
   height?: number;
   // @ts-ignore
   stylesheet: cytoscape.Stylesheet[];
+  onSelectNode?: (id: string | null) => void;
 };
 
 export interface GraphViewHandle {
@@ -74,7 +75,7 @@ export interface GraphViewHandle {
 }
 
 const GraphView = forwardRef<GraphViewHandle, Props>(
-  ({ pages, selectedProps = [], layoutName = "cose", height = 600, stylesheet }, ref) => {
+  ({ pages, selectedProps = [], layoutName = "cose", height = 600, stylesheet, onSelectNode }, ref) => {
     const { nodes, edges } = useMemo(
       () => buildGraph(pages, { selectedProps }),
       [pages, selectedProps]
@@ -115,39 +116,33 @@ const GraphView = forwardRef<GraphViewHandle, Props>(
       png: () => cyRef.current?.png({ full: true }),
       json: () => cyRef.current?.json(),
     }));
-
+    
     const attachHandlers = (cy: cytoscape.Core) => {
-      let selectedPageId: string | null = null;
+      const tapHandler = (e: cytoscape.EventObject) => {
+        onSelectNode?.(e.target.id?.() ?? null);
+      };
 
-      const handleSelect = (evt: cytoscape.EventObject) => {
-        const id: string = evt.target.id();
-        if (id.startsWith("p-")) {
-          selectedPageId = id;
-        }
-      };
-      const handleUnselect = (evt: cytoscape.EventObject) => {
-        const id: string = evt.target.id();
-        if (selectedPageId === id) {
-          selectedPageId = null;
-        }
-      };
-      const openPage = (evt: cytoscape.EventObject) => {
-        const id: string = evt.target.id();
-        if (id.startsWith("p-") && selectedPageId === id) {
+      const dblHandler = (e: cytoscape.EventObject) => {
+        const id = e.target.id?.();
+        if (id?.startsWith("p-")) {
           const pageId = id.slice(2).replace(/-/g, "");
-          const url = `https://www.notion.so/${pageId}`;
-          window.open(url, "_blank");
+          window.open(`https://www.notion.so/${pageId}`, "_blank");
         }
       };
 
-      cy.on("select", "node[type='page']", handleSelect);
-      cy.on("unselect", "node[type='page']", handleUnselect);
-      cy.on("tap", "node[type='page']", openPage);
+      /* register */
+      cy.on("tap", "node", tapHandler);
+      cy.on("dbltap", "node[type='page']", dblHandler);
+      cy.on("tap", (evt) => {
+        // 背景クリックで選択解除
+        if (evt.target === cy) onSelectNode?.(null);
+      });
 
+      /* cleanup on unmount */
       return () => {
-        cy.off("tap", "node[type='page']", openPage);
-        cy.off("select", "node[type='page']", handleSelect);
-        cy.off("unselect", "node[type='page']", handleUnselect);
+        cy.off("tap", "node", tapHandler);
+        cy.off("dbltap", "node[type='page']", dblHandler);
+        cy.off("tap");
       };
     };
 
