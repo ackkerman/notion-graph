@@ -2,6 +2,7 @@
 import { useRef, useState, useEffect } from "react";
 import GraphView, { GraphViewHandle } from "./GraphView";
 import LayoutControls from "./LayoutControls";
+import StatsPanel from "./StatsPanel";
 import { buildStyles } from "@/lib/cytoscape/styles";
 import type { PageKW } from "@/lib/cytoscape/graph";
 import { layouts } from "./GraphView";
@@ -52,6 +53,7 @@ export default function GraphPanel({ pages, selectedProps }: Props) {
         stylesheet={stylesheet}
         height={550}
       />
+      <StatsPanel pages={pages} selectedProps={selectedProps} />
     </section>
   );
 }
