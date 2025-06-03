@@ -65,6 +65,8 @@ export interface GraphViewHandle {
   zoomIn: () => void;
   zoomOut: () => void;
   setLayout: (l: LayoutName) => void;
+  png: () => string | undefined;
+  json: () => any;
 }
 
 const GraphView = forwardRef<GraphViewHandle, Props>(
@@ -81,6 +83,8 @@ const GraphView = forwardRef<GraphViewHandle, Props>(
       zoomIn: () => cyRef.current?.zoom(cyRef.current.zoom() * 1.2),
       zoomOut: () => cyRef.current?.zoom(cyRef.current.zoom() * 0.8),
       setLayout: (l: LayoutName) => cyRef.current?.layout(layouts[l]).run(),
+      png: () => cyRef.current?.png({ full: true }),
+      json: () => cyRef.current?.json(),
     }));
 
     return (

@@ -9,6 +9,8 @@ import {
   RefreshCw,
   Eye,
   EyeOff,
+  Download,
+  FileJson,
 } from "lucide-react";
 import { layouts } from "./GraphView";
 
@@ -28,6 +30,8 @@ type Props = {
   onFit: () => void;
   onZoomIn: () => void;
   onZoomOut: () => void;
+  onExportPng: () => void;
+  onExportJson: () => void;
   showEdgeLabels: boolean;
   showNodeLabels: boolean;
   onToggleEdgeLabels: () => void;
@@ -40,6 +44,8 @@ export default function LayoutControls({
   onFit,
   onZoomIn,
   onZoomOut,
+  onExportPng,
+  onExportJson,
   showEdgeLabels,
   showNodeLabels,
   onToggleEdgeLabels,
@@ -85,6 +91,16 @@ export default function LayoutControls({
             </button>
             <button onClick={onZoomOut} className={baseBtn}>
               <ZoomOut size={14} />
+            </button>
+          </div>
+
+          {/* export buttons */}
+          <div className="flex gap-2">
+            <button onClick={onExportPng} className={baseBtn}>
+              <Download size={14} /> PNG
+            </button>
+            <button onClick={onExportJson} className={baseBtn}>
+              <FileJson size={14} /> JSON
             </button>
           </div>
 
