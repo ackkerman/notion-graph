@@ -24,6 +24,8 @@
 | 🕸 **Cytoscape layouts**               | COSE, Dagre, Elk, Cola, … switchable with a single click.                           |
 | 🎨 **Notion-like UI**                  | Tailwind CSS v4 + CSS-first theme tokens for colours, radius, shadows.              |
 | 📦 **100 % client-side**               | No backend—runs on Vercel/Pages/S3 as static files.                                 |
+| 📊 **Graph statistics**                | Displays node counts and top central nodes based on degree.                        |
+| 🗑️ **Node pruning**                    | Remove nodes from a list sorted by degree.                                         |
 
 ## 📸 Demo
 

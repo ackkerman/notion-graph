@@ -2,6 +2,8 @@
 import { useRef, useState, useEffect } from "react";
 import GraphView, { GraphViewHandle } from "./GraphView";
 import LayoutControls from "./LayoutControls";
+import StatsPanel from "./StatsPanel";
+import NodeListPanel from "./NodeListPanel";
 import { buildStyles } from "@/lib/cytoscape/styles";
 import type { PageKW } from "@/lib/cytoscape/graph";
 import { layouts } from "./GraphView";
@@ -9,8 +11,9 @@ import { layouts } from "./GraphView";
 type Props = { pages: PageKW[]; selectedProps: string[] };
 
 export default function GraphPanel({ pages, selectedProps }: Props) {
-  const viewRef = useRef<GraphViewHandle>(null);
+  const viewRef = useRef<GraphViewHandle | null>(null);
   const [layout, setLayout] = useState<keyof typeof layouts>("cose-bilkent");
+  const [version, setVersion] = useState(0);
 
   /* トグル用 state（お好みで拡張） */
   const [showNodeLabels, setShowNodeLabels] = useState(true);
@@ -61,6 +64,8 @@ export default function GraphPanel({ pages, selectedProps }: Props) {
     onToggleEdgeLabels: () => setShowEdgeLabels((s) => !s),
     onToggleNodeLabels: () => setShowNodeLabels((s) => !s),
   };
+      
+  const handleNodeDelete = () => setVersion((v) => v + 1);
 
   return (
     <section className="flex flex-col gap-3 bg-n-bg border border-n-gray rounded-[var(--radius-card)] p-3">
@@ -72,6 +77,19 @@ export default function GraphPanel({ pages, selectedProps }: Props) {
         layoutName={layout}
         stylesheet={stylesheet}
         height={550}
+      />
+      <StatsPanel
+        pages={pages}
+        selectedProps={selectedProps}
+        viewRef={viewRef}
+        version={version}
+      />
+      <NodeListPanel
+        viewRef={viewRef}
+        pages={pages}
+        selectedProps={selectedProps}
+        version={version}
+        onDelete={handleNodeDelete}
       />
     </section>
   );

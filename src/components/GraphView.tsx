@@ -5,6 +5,7 @@ import { useMemo, useRef, useImperativeHandle, forwardRef } from "react";
 import CytoscapeComponent from "react-cytoscapejs";
 import type { PageKW } from "@/lib/cytoscape/graph";
 import { buildGraph } from "@/lib/cytoscape/graph";
+import type { GraphData } from "@/lib/cytoscape/types";
 
 import COSEBilkent from "cytoscape-cose-bilkent";
 import cola from "cytoscape-cola";
@@ -65,6 +66,9 @@ export interface GraphViewHandle {
   zoomIn: () => void;
   zoomOut: () => void;
   setLayout: (l: LayoutName) => void;
+  removeNode: (id: string) => void;
+  getNodesByDegree: () => { id: string; label: string; degree: number }[];
+  getGraphData: () => GraphData;
   png: () => string | undefined;
   json: () => any;
 }
@@ -83,13 +87,38 @@ const GraphView = forwardRef<GraphViewHandle, Props>(
       zoomIn: () => cyRef.current?.zoom(cyRef.current.zoom() * 1.2),
       zoomOut: () => cyRef.current?.zoom(cyRef.current.zoom() * 0.8),
       setLayout: (l: LayoutName) => cyRef.current?.layout(layouts[l]).run(),
+      removeNode: (id: string) => {
+        const ele = cyRef.current?.getElementById(id);
+        ele?.remove();
+      },
+      getNodesByDegree: () => {
+        if (!cyRef.current) return [];
+        return cyRef.current
+          .nodes()
+          .map((n) => ({
+            id: n.id(),
+            label: n.data("label"),
+            degree: n.connectedEdges().length,
+          }))
+          .sort((a, b) => b.degree - a.degree);
+      },
+      getGraphData: () => {
+        if (!cyRef.current) return { nodes: [], edges: [] };
+        const nodes = cyRef.current
+          .nodes()
+          .map((n) => ({ data: { ...n.data() } }));
+        const edges = cyRef.current
+          .edges()
+          .map((e) => ({ data: { ...e.data() } }));
+        return { nodes, edges } as GraphData;
+      },
       png: () => cyRef.current?.png({ full: true }),
       json: () => cyRef.current?.json(),
     }));
 
     return (
       <CytoscapeComponent
-        cy={(cy) => (cyRef.current = cy)}
+        cy={(cy) => (cyRef.current = cy as unknown as cytoscape.Core)}
         elements={[...nodes, ...edges]}
         layout={layouts[layoutName]}
         stylesheet={stylesheet}
