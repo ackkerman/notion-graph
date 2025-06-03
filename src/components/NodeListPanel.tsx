@@ -11,9 +11,11 @@ interface NodeInfo {
 
 interface Props {
   viewRef: React.RefObject<GraphViewHandle | null>;
+  onDelete?: () => void;
 }
 
-export default function NodeListPanel({ viewRef }: Props) {
+
+export default function NodeListPanel({ viewRef, onDelete }: Props) {
   const [collapsed, setCollapsed] = useState(false);
   const [nodes, setNodes] = useState<NodeInfo[]>([]);
 
@@ -29,6 +31,7 @@ export default function NodeListPanel({ viewRef }: Props) {
 
   const handleDelete = (id: string) => {
     viewRef.current?.removeNode(id);
+    onDelete?.();
     refresh();
   };
 

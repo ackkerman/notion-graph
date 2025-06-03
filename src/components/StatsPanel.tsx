@@ -3,16 +3,26 @@ import { useMemo, useState } from "react";
 import { ChevronDown, ChevronRight, BarChart3 } from "lucide-react";
 import type { PageKW } from "@/lib/cytoscape/graph";
 import { buildGraph } from "@/lib/cytoscape/graph";
+import type { GraphViewHandle } from "./GraphView";
 import { computeGraphStats } from "@/lib/cytoscape/stats";
 
-type Props = { pages: PageKW[]; selectedProps: string[] };
+type Props = {
+  pages: PageKW[];
+  selectedProps: string[];
+  viewRef: React.RefObject<GraphViewHandle | null>;
+  version: number;
+};
 
-export default function StatsPanel({ pages, selectedProps }: Props) {
+export default function StatsPanel({ pages, selectedProps, viewRef, version }: Props) {
   const [collapsed, setCollapsed] = useState(false);
+  
   const stats = useMemo(() => {
-    const graph = buildGraph(pages, { selectedProps });
+    void version;
+    const graph = viewRef.current
+      ? viewRef.current.getGraphData()
+      : buildGraph(pages, { selectedProps });
     return computeGraphStats(graph);
-  }, [pages, selectedProps]);
+  }, [pages, selectedProps, viewRef, version]);
 
   return (
     <section className="flex flex-col gap-2 rounded-[var(--radius-card)] border border-n-gray bg-white p-3 text-sm">
