@@ -5,6 +5,7 @@ import { useMemo, useRef, useImperativeHandle, forwardRef } from "react";
 import CytoscapeComponent from "react-cytoscapejs";
 import type { PageKW } from "@/lib/cytoscape/graph";
 import { buildGraph } from "@/lib/cytoscape/graph";
+import type { GraphData } from "@/lib/cytoscape/types";
 
 import COSEBilkent from "cytoscape-cose-bilkent";
 import cola from "cytoscape-cola";
@@ -67,6 +68,7 @@ export interface GraphViewHandle {
   setLayout: (l: LayoutName) => void;
   removeNode: (id: string) => void;
   getNodesByDegree: () => { id: string; label: string; degree: number }[];
+  getGraphData: () => GraphData;
 }
 
 const GraphView = forwardRef<GraphViewHandle, Props>(
@@ -97,6 +99,16 @@ const GraphView = forwardRef<GraphViewHandle, Props>(
             degree: n.connectedEdges().length,
           }))
           .sort((a, b) => b.degree - a.degree);
+      },
+      getGraphData: () => {
+        if (!cyRef.current) return { nodes: [], edges: [] };
+        const nodes = cyRef.current
+          .nodes()
+          .map((n) => ({ data: { ...n.data() } }));
+        const edges = cyRef.current
+          .edges()
+          .map((e) => ({ data: { ...e.data() } }));
+        return { nodes, edges } as GraphData;
       },
     }));
 

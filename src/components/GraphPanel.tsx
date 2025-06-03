@@ -13,6 +13,7 @@ type Props = { pages: PageKW[]; selectedProps: string[] };
 export default function GraphPanel({ pages, selectedProps }: Props) {
   const viewRef = useRef<GraphViewHandle | null>(null);
   const [layout, setLayout] = useState<keyof typeof layouts>("cose-bilkent");
+  const [version, setVersion] = useState(0);
 
   /* トグル用 state（お好みで拡張） */
   const [showNodeLabels, setShowNodeLabels] = useState(true);
@@ -43,6 +44,8 @@ export default function GraphPanel({ pages, selectedProps }: Props) {
     onToggleNodeLabels: () => setShowNodeLabels((s) => !s),
   };
 
+  const handleNodeDelete = () => setVersion((v) => v + 1);
+
   return (
     <section className="flex flex-col gap-3 bg-n-bg border border-n-gray rounded-[var(--radius-card)] p-3">
       <LayoutControls {...controls} />
@@ -54,8 +57,13 @@ export default function GraphPanel({ pages, selectedProps }: Props) {
         stylesheet={stylesheet}
         height={550}
       />
-      <StatsPanel pages={pages} selectedProps={selectedProps} />
-      <NodeListPanel viewRef={viewRef} />
+      <StatsPanel
+        pages={pages}
+        selectedProps={selectedProps}
+        viewRef={viewRef}
+        version={version}
+      />
+      <NodeListPanel viewRef={viewRef} onDelete={handleNodeDelete} />
     </section>
   );
 }
