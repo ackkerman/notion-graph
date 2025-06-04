@@ -1,4 +1,11 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
+vi.mock('@notion-render/client', () => ({
+  NotionRenderer: class {
+    async render() {
+      return '<h1>Title</h1>\n<p>Hello</p>'
+    }
+  }
+}))
 import { renderBlocks } from '@/lib/notion/renderBlocks'
 import type { BlockObjectResponse } from '@notionhq/client/build/src/api-endpoints'
 
@@ -18,6 +25,7 @@ describe('renderBlocks', () => {
     ]
 
     const html = await renderBlocks(blocks)
-    expect(typeof html).toBe('string')
+    expect(html).toContain('Title')
+    expect(html).toContain('Hello')
   })
 })
