@@ -24,11 +24,59 @@ const PID = "p-";
 const KID = "k-";
 const PVID = "pv-";
 
+const DEFAULT_PAGE_COLOR = "#487CA5";
+
+// cytoscape は CSS 変数を解釈しないため、テーマの変数を HEX に変換して使用する
+const VAR_HEX_MAP: Record<string, string> = {
+  "--color-n-blue": "#2f80ed",
+  "--color-n-green": "#448361",
+  "--color-n-yellow": "#cb912f",
+  "--color-n-orange": "#d9730d",
+  "--color-n-pink": "#c14c8a",
+  "--color-n-purple": "#9065b0",
+  "--color-n-brown": "#64473a",
+  "--color-n-red": "#d44c47",
+} as const;
+
+const cssVarToHex = (v: string): string => {
+  const match = v.match(/^var\((--[^)]+)\)$/);
+  return match ? VAR_HEX_MAP[match[1]] ?? DEFAULT_PAGE_COLOR : v;
+};
+
+export const HUES = [
+  cssVarToHex("var(--color-n-blue)"),
+  cssVarToHex("var(--color-n-green)"),
+  cssVarToHex("var(--color-n-yellow)"),
+  cssVarToHex("var(--color-n-orange)"),
+  cssVarToHex("var(--color-n-pink)"),
+  cssVarToHex("var(--color-n-purple)"),
+  cssVarToHex("var(--color-n-brown)"),
+  cssVarToHex("var(--color-n-red)"),
+] as const;
+
+export function computeColorMap(
+  pages: PageKW[],
+  colorProp?: string,
+): Map<string, string> {
+  const map = new Map<string, string>();
+  if (!colorProp) return map;
+  pages.forEach((page) => {
+    const val = Array.isArray(page[colorProp])
+      ? (page[colorProp] as string[])[0]
+      : (page[colorProp] as string | undefined);
+    if (!val) return;
+    if (!map.has(val)) map.set(val, HUES[map.size % HUES.length]);
+  });
+  return map;
+}
+
 /* ─────────────────── main builder ─────────────────── */
 
 export interface BuildOptions {
   /** グラフに含めたい multi_select / select プロパティ名 */
   selectedProps?: string[];
+  /** ページカラーに使うプロパティ名 */
+  colorProp?: string;
 }
 
 /**
@@ -36,12 +84,17 @@ export interface BuildOptions {
  */
 export function buildGraph(
   pages: PageKW[],
-  { selectedProps = [] }: BuildOptions = {}
+  { selectedProps = [], colorProp }: BuildOptions = {}
 ): GraphData {
   const nodes: GraphData["nodes"] = [];
   const edges: GraphData["edges"] = [];
 
   const seen = new Set<string>(); // 全ノード重複防止
+  const colorMap = computeColorMap(pages, colorProp);
+  const pickColor = (val: string | undefined): string => {
+    if (!val) return DEFAULT_PAGE_COLOR;
+    return colorMap.get(val) ?? DEFAULT_PAGE_COLOR;
+  };
 
   const pushNode = (d: NodeData) => {
     if (!seen.has(d.id)) {
@@ -54,7 +107,17 @@ export function buildGraph(
 
   pages.forEach((page) => {
     const pageId = PID + page.id;
-    pushNode({ id: pageId, label: page.title, type: "page" });
+    const colorVal = colorProp
+      ? Array.isArray(page[colorProp])
+        ? (page[colorProp] as string[])[0]
+        : (page[colorProp] as string | undefined)
+      : undefined;
+    pushNode({
+      id: pageId,
+      label: page.title,
+      type: "page",
+      color: pickColor(colorVal),
+    });
 
     /* --- キーワード --- */
     if (includeKw) {

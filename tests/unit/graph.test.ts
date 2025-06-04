@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { slug, buildGraph, getConnectedNodes } from '@/lib/cytoscape/graph'
+import { slug, buildGraph, getConnectedNodes, computeColorMap } from '@/lib/cytoscape/graph'
 
 const samplePages = [
   { id: '1', title: 'Page One', keywords: ['Alpha', 'Beta'], tags: ['Tag1'] },
@@ -23,6 +23,7 @@ describe('buildGraph', () => {
     const g = buildGraph(samplePages)
     expect(g.nodes).toHaveLength(2)
     expect(g.edges).toHaveLength(0)
+    expect(g.nodes.every(n => typeof n.data.color === 'string')).toBe(true)
   })
 
   it('includes keywords when selected', () => {
@@ -49,6 +50,18 @@ describe('buildGraph', () => {
     expect(g.nodes.length).toBe(7) // 2 pages + 3 keywords + 2 tags
     expect(g.edges.length).toBe(7) // 4 keyword edges + 3 tag edges
   })
+
+  it('assigns colors by property value', () => {
+    const pages = [
+      { id: '1', title: 'First', keywords: [], status: ['Todo'] },
+      { id: '2', title: 'Second', keywords: [], status: ['Done'] },
+      { id: '3', title: 'Third', keywords: [], status: ['Todo'] },
+    ]
+    const g = buildGraph(pages, { colorProp: 'status' })
+    const colors = g.nodes.map(n => n.data.color)
+    expect(colors[0]).toBe(colors[2])
+    expect(colors[0]).not.toBe(colors[1])
+  })
 })
 
 describe('getConnectedNodes', () => {
@@ -57,5 +70,21 @@ describe('getConnectedNodes', () => {
     const con = getConnectedNodes(g, 'p-1')
     const labels = con.map((n) => n.label).sort()
     expect(labels).toEqual(['Alpha', 'Beta', 'Tag1'])
+  })
+})
+
+describe('computeColorMap', () => {
+  it('returns consistent colors for property values', () => {
+    const pages = [
+      { id: '1', title: 'First', keywords: [], status: ['Todo'] },
+      { id: '2', title: 'Second', keywords: [], status: ['Done'] },
+      { id: '3', title: 'Third', keywords: [], status: ['Todo'] },
+    ]
+    const map = computeColorMap(pages, 'status')
+    const graph = buildGraph(pages, { colorProp: 'status' })
+    const todoColor = map.get('Todo')
+    const nodeColor = graph.nodes.find(n => n.data.label === 'First')?.data.color
+    expect(todoColor).toBe(nodeColor)
+    expect(map.size).toBe(2)
   })
 })

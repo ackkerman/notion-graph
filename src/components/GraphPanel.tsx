@@ -5,13 +5,14 @@ import LayoutControls from "./LayoutControls";
 import StatsPanel from "./StatsPanel";
 import NodeListPanel from "./NodeListPanel";
 import NodeDetailPanel from "./NodeDetailPanel";
+import ColorLegend from "./ColorLegend";
 import { buildStyles } from "@/lib/cytoscape/styles";
 import type { PageKW } from "@/lib/cytoscape/graph";
 import { layouts } from "./GraphView";
 
-type Props = { pages: PageKW[]; selectedProps: string[] };
+type Props = { pages: PageKW[]; selectedProps: string[]; colorProp?: string };
 
-export default function GraphPanel({ pages, selectedProps }: Props) {
+export default function GraphPanel({ pages, selectedProps, colorProp }: Props) {
   const viewRef = useRef<GraphViewHandle | null>(null);
   const [layout, setLayout] = useState<keyof typeof layouts>("cose-bilkent");
   const [version, setVersion] = useState(0);
@@ -20,6 +21,7 @@ export default function GraphPanel({ pages, selectedProps }: Props) {
   /* トグル用 state（お好みで拡張） */
   const [showNodeLabels, setShowNodeLabels] = useState(true);
   const [showEdgeLabels, setShowEdgeLabels] = useState(false);
+  const [showColorLegend, setShowColorLegend] = useState(true);
 
   // @ts-expect-error, Cytoscape has no type definition for this
   const [stylesheet, setStylesheet] = useState<cytoscape.Stylesheet[]>(
@@ -63,8 +65,10 @@ export default function GraphPanel({ pages, selectedProps }: Props) {
     },
     showEdgeLabels,
     showNodeLabels,
+    showColorLegend,
     onToggleEdgeLabels: () => setShowEdgeLabels((s) => !s),
     onToggleNodeLabels: () => setShowNodeLabels((s) => !s),
+    onToggleColorLegend: () => setShowColorLegend((s) => !s),
   };
       
   const handleNodeDelete = () => setVersion((v) => v + 1);
@@ -72,19 +76,26 @@ export default function GraphPanel({ pages, selectedProps }: Props) {
   return (
     <section className="flex flex-col md:flex-row gap-3 bg-white border border-n-gray rounded-[var(--radius-card)] p-3">
       <div className="flex flex-col gap-3 md:w-1/2">
-        <GraphView
-          ref={viewRef}
-          pages={pages}
-          selectedProps={selectedProps}
-          layoutName={layout}
-          stylesheet={stylesheet}
-          height={600}
-          onSelectNode={setSelectedNode}
-        />
+        <div className="relative">
+          <GraphView
+            ref={viewRef}
+            pages={pages}
+            selectedProps={selectedProps}
+            colorProp={colorProp}
+            layoutName={layout}
+            stylesheet={stylesheet}
+            height={600}
+            onSelectNode={setSelectedNode}
+          />
+          {showColorLegend && (
+            <ColorLegend pages={pages} colorProp={colorProp} />
+          )}
+        </div>
         <LayoutControls {...controls} />
         <StatsPanel
           pages={pages}
           selectedProps={selectedProps}
+          colorProp={colorProp}
           viewRef={viewRef}
           version={version}
         />
@@ -92,6 +103,7 @@ export default function GraphPanel({ pages, selectedProps }: Props) {
           viewRef={viewRef}
           pages={pages}
           selectedProps={selectedProps}
+          colorProp={colorProp}
           version={version}
           onDelete={handleNodeDelete}
         />

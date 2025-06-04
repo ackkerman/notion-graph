@@ -9,11 +9,12 @@ import { computeGraphStats } from "@/lib/cytoscape/stats";
 type Props = {
   pages: PageKW[];
   selectedProps: string[];
+  colorProp?: string;
   viewRef: React.RefObject<GraphViewHandle | null>;
   version: number;
 };
 
-export default function StatsPanel({ pages, selectedProps, viewRef, version }: Props) {
+export default function StatsPanel({ pages, selectedProps, colorProp, viewRef, version }: Props) {
   const [collapsed, setCollapsed] = useState(false);
   const [readyVersion, setReadyVersion] = useState(0);
 
@@ -26,10 +27,10 @@ export default function StatsPanel({ pages, selectedProps, viewRef, version }: P
     void version;
     const graph = viewRef.current
       ? viewRef.current.getGraphData()
-      : buildGraph(pages, { selectedProps });
+      : buildGraph(pages, { selectedProps, colorProp });
     return computeGraphStats(graph);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pages, selectedProps, viewRef, version, readyVersion]);
+  }, [pages, selectedProps, colorProp, viewRef, version, readyVersion]);
 
   return (
     <section className="flex flex-col gap-2 rounded-[var(--radius-card)] border border-n-gray bg-n-bg p-3 text-sm">

@@ -25,6 +25,7 @@ export default function Page() {
   const [dbList, setDbList] = useState<DbInfo[]>([]);
   const [selectedDbId, setSelectedDbId] = useState<string | null>(null);
   const [selectedProps, setSelectedProps] = useState<string[]>([]);
+  const [colorProp, setColorProp] = useState<string | null>(null);
 
   const [items, setItems] = useState<any[]>([]);
   const [itemsKW, setItemsKW] = useState<PageKW[] | null>(null);
@@ -79,7 +80,14 @@ export default function Page() {
     try {
       // プロパティ
       const meta = await fetchDatabaseProperties(dbId);
-      setProps(meta.filter((p) => p.type === "multi_select" || p.type === "select"));
+      const filtered = meta.filter((p) =>
+        ["multi_select", "select", "status"].includes(p.type)
+      );
+      setProps(filtered);
+      if (!colorProp && filtered.length > 0) {
+        const status = filtered.find((p) => p.type === "status");
+        setColorProp(status ? status.name : filtered[0].name);
+      }
 
       // ページ
       const pages = await fetchDatabasePages(dbId);
@@ -171,7 +179,13 @@ export default function Page() {
           </div>
 
           {/* Graph */}
-          {(itemsKW || items.length > 0) && <GraphPanel pages={itemsKW || items} selectedProps={selectedProps} />}
+          {(itemsKW || items.length > 0) && (
+            <GraphPanel
+              pages={itemsKW || items}
+              selectedProps={selectedProps}
+              colorProp={colorProp ?? undefined}
+            />
+          )}
 
           {/* Property list */}
           <details open className="rounded-lg border border-n-gray bg-white p-4 shadow-[var(--shadow-card)]">
@@ -218,6 +232,28 @@ export default function Page() {
                   </label>
                 </li>
               ))}
+              {/* color select */}
+              {props.length > 0 && (
+                <li className="mt-2">
+                  <label className="text-sm font-medium">
+                    Color by:
+                    <select
+                      value={colorProp ?? ""}
+                      onChange={(e) =>
+                        setColorProp(e.target.value || null)
+                      }
+                      className="ml-2 rounded-[var(--radius-btn)] border border-n-gray bg-white px-2 py-1 text-sm"
+                    >
+                      <option value="">(none)</option>
+                      {props.map((p) => (
+                        <option key={p.id} value={p.name}>
+                          {p.name}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </li>
+              )}
             </ul>
           </details>
 
