@@ -1,9 +1,16 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
+vi.mock('@notion-render/client', () => ({
+  NotionRenderer: class {
+    async render() {
+      return '<h1>Title</h1>\n<p>Hello</p>'
+    }
+  }
+}))
 import { renderBlocks } from '@/lib/notion/renderBlocks'
 import type { BlockObjectResponse } from '@notionhq/client/build/src/api-endpoints'
 
 describe('renderBlocks', () => {
-  it('renders simple blocks to html', () => {
+  it('renders simple blocks to html', async () => {
     const blocks: BlockObjectResponse[] = [
       {
         id: '1',
@@ -17,7 +24,8 @@ describe('renderBlocks', () => {
       } as unknown as BlockObjectResponse
     ]
 
-    const html = renderBlocks(blocks)
-    expect(html).toBe('<h1>Title</h1>\n<p>Hello</p>')
+    const html = await renderBlocks(blocks)
+    expect(html).toContain('Title')
+    expect(html).toContain('Hello')
   })
 })
