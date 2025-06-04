@@ -15,6 +15,7 @@ interface Props {
   viewRef: React.RefObject<GraphViewHandle | null>;
   pages: PageKW[];
   selectedProps: string[];
+  colorProp?: string;
   version: number;
   onDelete?: () => void;
 }
@@ -24,6 +25,7 @@ export default function NodeListPanel({
   viewRef,
   pages,
   selectedProps,
+  colorProp,
   version,
   onDelete,
 }: Props) {
@@ -35,7 +37,7 @@ export default function NodeListPanel({
       setNodes(viewRef.current.getNodesByDegree());
       return;
     }
-    const { nodes, edges } = buildGraph(pages, { selectedProps });
+    const { nodes, edges } = buildGraph(pages, { selectedProps, colorProp });
     const degree = new Map<string, number>();
     edges.forEach((e) => {
       degree.set(e.data.source, (degree.get(e.data.source) || 0) + 1);
@@ -54,7 +56,7 @@ export default function NodeListPanel({
   useEffect(() => {
     refresh();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pages, selectedProps, version, viewRef.current]);
+  }, [pages, selectedProps, colorProp, version, viewRef.current]);
 
   const handleDelete = (id: string) => {
     viewRef.current?.removeNode(id);

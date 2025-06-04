@@ -9,9 +9,9 @@ import { buildStyles } from "@/lib/cytoscape/styles";
 import type { PageKW } from "@/lib/cytoscape/graph";
 import { layouts } from "./GraphView";
 
-type Props = { pages: PageKW[]; selectedProps: string[] };
+type Props = { pages: PageKW[]; selectedProps: string[]; colorProp?: string };
 
-export default function GraphPanel({ pages, selectedProps }: Props) {
+export default function GraphPanel({ pages, selectedProps, colorProp }: Props) {
   const viewRef = useRef<GraphViewHandle | null>(null);
   const [layout, setLayout] = useState<keyof typeof layouts>("cose-bilkent");
   const [version, setVersion] = useState(0);
@@ -76,6 +76,7 @@ export default function GraphPanel({ pages, selectedProps }: Props) {
         ref={viewRef}
         pages={pages}
         selectedProps={selectedProps}
+        colorProp={colorProp}
         layoutName={layout}
         stylesheet={stylesheet}
         height={600}
@@ -88,6 +89,7 @@ export default function GraphPanel({ pages, selectedProps }: Props) {
       <StatsPanel
         pages={pages}
         selectedProps={selectedProps}
+        colorProp={colorProp}
         viewRef={viewRef}
         version={version}
       />
@@ -95,6 +97,7 @@ export default function GraphPanel({ pages, selectedProps }: Props) {
         viewRef={viewRef}
         pages={pages}
         selectedProps={selectedProps}
+        colorProp={colorProp}
         version={version}
         onDelete={handleNodeDelete}
       />

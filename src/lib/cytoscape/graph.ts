@@ -24,11 +24,25 @@ const PID = "p-";
 const KID = "k-";
 const PVID = "pv-";
 
+const DEFAULT_PAGE_COLOR = "#487CA5";
+const HUES = [
+  "var(--color-n-blue)",
+  "var(--color-n-green)",
+  "var(--color-n-yellow)",
+  "var(--color-n-orange)",
+  "var(--color-n-pink)",
+  "var(--color-n-purple)",
+  "var(--color-n-brown)",
+  "var(--color-n-red)",
+] as const;
+
 /* ─────────────────── main builder ─────────────────── */
 
 export interface BuildOptions {
   /** グラフに含めたい multi_select / select プロパティ名 */
   selectedProps?: string[];
+  /** ページカラーに使うプロパティ名 */
+  colorProp?: string;
 }
 
 /**
@@ -36,12 +50,19 @@ export interface BuildOptions {
  */
 export function buildGraph(
   pages: PageKW[],
-  { selectedProps = [] }: BuildOptions = {}
+  { selectedProps = [], colorProp }: BuildOptions = {}
 ): GraphData {
   const nodes: GraphData["nodes"] = [];
   const edges: GraphData["edges"] = [];
 
   const seen = new Set<string>(); // 全ノード重複防止
+  const colorMap = new Map<string, string>();
+  const pickColor = (val: string | undefined): string => {
+    if (!val) return DEFAULT_PAGE_COLOR;
+    if (!colorMap.has(val))
+      colorMap.set(val, HUES[colorMap.size % HUES.length]);
+    return colorMap.get(val)!;
+  };
 
   const pushNode = (d: NodeData) => {
     if (!seen.has(d.id)) {
@@ -54,7 +75,17 @@ export function buildGraph(
 
   pages.forEach((page) => {
     const pageId = PID + page.id;
-    pushNode({ id: pageId, label: page.title, type: "page" });
+    const colorVal = colorProp
+      ? Array.isArray(page[colorProp])
+        ? (page[colorProp] as string[])[0]
+        : (page[colorProp] as string | undefined)
+      : undefined;
+    pushNode({
+      id: pageId,
+      label: page.title,
+      type: "page",
+      color: pickColor(colorVal),
+    });
 
     /* --- キーワード --- */
     if (includeKw) {

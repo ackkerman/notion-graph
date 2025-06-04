@@ -6,6 +6,8 @@ export interface NodeData {
   type: NodeKind;
   /** prop ノードのみ保持 (e.g. "Tags") */
   propName?: string;
+  /** page ノードの色 (CSS color value) */
+  color?: string;
 }
 export interface EdgeData {
   id: string;

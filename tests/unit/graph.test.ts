@@ -23,6 +23,7 @@ describe('buildGraph', () => {
     const g = buildGraph(samplePages)
     expect(g.nodes).toHaveLength(2)
     expect(g.edges).toHaveLength(0)
+    expect(g.nodes.every(n => typeof n.data.color === 'string')).toBe(true)
   })
 
   it('includes keywords when selected', () => {
@@ -48,6 +49,18 @@ describe('buildGraph', () => {
     const g = buildGraph(pages, { selectedProps: ['__keywords', 'tags'] })
     expect(g.nodes.length).toBe(7) // 2 pages + 3 keywords + 2 tags
     expect(g.edges.length).toBe(7) // 4 keyword edges + 3 tag edges
+  })
+
+  it('assigns colors by property value', () => {
+    const pages = [
+      { id: '1', title: 'First', keywords: [], status: ['Todo'] },
+      { id: '2', title: 'Second', keywords: [], status: ['Done'] },
+      { id: '3', title: 'Third', keywords: [], status: ['Todo'] },
+    ]
+    const g = buildGraph(pages, { colorProp: 'status' })
+    const colors = g.nodes.map(n => n.data.color)
+    expect(colors[0]).toBe(colors[2])
+    expect(colors[0]).not.toBe(colors[1])
   })
 })
 
