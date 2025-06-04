@@ -5,6 +5,7 @@ import LayoutControls from "./LayoutControls";
 import StatsPanel from "./StatsPanel";
 import NodeListPanel from "./NodeListPanel";
 import NodeDetailPanel from "./NodeDetailPanel";
+import ColorLegend from "./ColorLegend";
 import { buildStyles } from "@/lib/cytoscape/styles";
 import type { PageKW } from "@/lib/cytoscape/graph";
 import { layouts } from "./GraphView";
@@ -72,16 +73,19 @@ export default function GraphPanel({ pages, selectedProps, colorProp }: Props) {
   return (
     <section className="flex flex-col gap-3 bg-white border border-n-gray rounded-[var(--radius-card)] p-3">
       
-      <GraphView
-        ref={viewRef}
-        pages={pages}
-        selectedProps={selectedProps}
-        colorProp={colorProp}
-        layoutName={layout}
-        stylesheet={stylesheet}
-        height={600}
-        onSelectNode={setSelectedNode}
-      />
+      <div className="relative">
+        <GraphView
+          ref={viewRef}
+          pages={pages}
+          selectedProps={selectedProps}
+          colorProp={colorProp}
+          layoutName={layout}
+          stylesheet={stylesheet}
+          height={600}
+          onSelectNode={setSelectedNode}
+        />
+        <ColorLegend pages={pages} colorProp={colorProp} />
+      </div>
       {selectedNode && (
         <NodeDetailPanel nodeId={selectedNode} pages={pages} viewRef={viewRef} />
       )}

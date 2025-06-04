@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { slug, buildGraph, getConnectedNodes } from '@/lib/cytoscape/graph'
+import { slug, buildGraph, getConnectedNodes, computeColorMap } from '@/lib/cytoscape/graph'
 
 const samplePages = [
   { id: '1', title: 'Page One', keywords: ['Alpha', 'Beta'], tags: ['Tag1'] },
@@ -70,5 +70,21 @@ describe('getConnectedNodes', () => {
     const con = getConnectedNodes(g, 'p-1')
     const labels = con.map((n) => n.label).sort()
     expect(labels).toEqual(['Alpha', 'Beta', 'Tag1'])
+  })
+})
+
+describe('computeColorMap', () => {
+  it('returns consistent colors for property values', () => {
+    const pages = [
+      { id: '1', title: 'First', keywords: [], status: ['Todo'] },
+      { id: '2', title: 'Second', keywords: [], status: ['Done'] },
+      { id: '3', title: 'Third', keywords: [], status: ['Todo'] },
+    ]
+    const map = computeColorMap(pages, 'status')
+    const graph = buildGraph(pages, { colorProp: 'status' })
+    const todoColor = map.get('Todo')
+    const nodeColor = graph.nodes.find(n => n.data.label === 'First')?.data.color
+    expect(todoColor).toBe(nodeColor)
+    expect(map.size).toBe(2)
   })
 })
