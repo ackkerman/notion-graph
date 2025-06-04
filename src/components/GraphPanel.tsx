@@ -76,19 +76,21 @@ export default function GraphPanel({ pages, selectedProps, colorProp }: Props) {
   return (
     <section className="flex flex-col md:flex-row gap-3 bg-white border border-n-gray rounded-[var(--radius-card)] p-3">
       <div className="flex flex-col gap-3 md:w-1/2">
-        <GraphView
-          ref={viewRef}
-          pages={pages}
-          selectedProps={selectedProps}
-          colorProp={colorProp}
-          layoutName={layout}
-          stylesheet={stylesheet}
-          height={600}
-          onSelectNode={setSelectedNode}
-        />
-        {showColorLegend && (
-          <ColorLegend pages={pages} colorProp={colorProp} />
-        )}
+        <div className="relative">
+          <GraphView
+            ref={viewRef}
+            pages={pages}
+            selectedProps={selectedProps}
+            colorProp={colorProp}
+            layoutName={layout}
+            stylesheet={stylesheet}
+            height={600}
+            onSelectNode={setSelectedNode}
+          />
+          {showColorLegend && (
+            <ColorLegend pages={pages} colorProp={colorProp} />
+          )}
+        </div>
         <LayoutControls {...controls} />
         <StatsPanel
           pages={pages}

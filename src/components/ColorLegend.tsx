@@ -14,7 +14,7 @@ export default function ColorLegend({ pages, colorProp }: Props) {
   if (!colorProp || map.size === 0) return null;
 
   return (
-    <div className="absolute right-2 top-2 rounded-[var(--radius-card)] border border-n-gray bg-white p-2 text-xs shadow-[var(--shadow-card)]">
+    <div className="absolute right-2 top-2 rounded-[var(--radius-card)] border border-n-gray bg-white p-2 text-xs shadow-[var(--shadow-card)] opacity-80">
       <div className="mb-1 font-medium">{colorProp}</div>
       <ul className="space-y-1">
         {[...map.entries()].map(([val, color]) => (
