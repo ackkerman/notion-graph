@@ -25,15 +25,33 @@ const KID = "k-";
 const PVID = "pv-";
 
 const DEFAULT_PAGE_COLOR = "#487CA5";
+
+// cytoscape は CSS 変数を解釈しないため、テーマの変数を HEX に変換して使用する
+const VAR_HEX_MAP: Record<string, string> = {
+  "--color-n-blue": "#2f80ed",
+  "--color-n-green": "#448361",
+  "--color-n-yellow": "#cb912f",
+  "--color-n-orange": "#d9730d",
+  "--color-n-pink": "#c14c8a",
+  "--color-n-purple": "#9065b0",
+  "--color-n-brown": "#64473a",
+  "--color-n-red": "#d44c47",
+} as const;
+
+const cssVarToHex = (v: string): string => {
+  const match = v.match(/^var\((--[^)]+)\)$/);
+  return match ? VAR_HEX_MAP[match[1]] ?? DEFAULT_PAGE_COLOR : v;
+};
+
 const HUES = [
-  "var(--color-n-blue)",
-  "var(--color-n-green)",
-  "var(--color-n-yellow)",
-  "var(--color-n-orange)",
-  "var(--color-n-pink)",
-  "var(--color-n-purple)",
-  "var(--color-n-brown)",
-  "var(--color-n-red)",
+  cssVarToHex("var(--color-n-blue)"),
+  cssVarToHex("var(--color-n-green)"),
+  cssVarToHex("var(--color-n-yellow)"),
+  cssVarToHex("var(--color-n-orange)"),
+  cssVarToHex("var(--color-n-pink)"),
+  cssVarToHex("var(--color-n-purple)"),
+  cssVarToHex("var(--color-n-brown)"),
+  cssVarToHex("var(--color-n-red)"),
 ] as const;
 
 /* ─────────────────── main builder ─────────────────── */
