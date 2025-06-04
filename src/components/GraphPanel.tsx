@@ -70,35 +70,38 @@ export default function GraphPanel({ pages, selectedProps }: Props) {
   const handleNodeDelete = () => setVersion((v) => v + 1);
 
   return (
-    <section className="flex flex-col gap-3 bg-white border border-n-gray rounded-[var(--radius-card)] p-3">
-      
-      <GraphView
-        ref={viewRef}
-        pages={pages}
-        selectedProps={selectedProps}
-        layoutName={layout}
-        stylesheet={stylesheet}
-        height={600}
-        onSelectNode={setSelectedNode}
-      />
+    <section className="flex flex-col md:flex-row gap-3 bg-white border border-n-gray rounded-[var(--radius-card)] p-3">
+      <div className="flex flex-col gap-3 md:w-1/2">
+        <GraphView
+          ref={viewRef}
+          pages={pages}
+          selectedProps={selectedProps}
+          layoutName={layout}
+          stylesheet={stylesheet}
+          height={600}
+          onSelectNode={setSelectedNode}
+        />
+        <LayoutControls {...controls} />
+        <StatsPanel
+          pages={pages}
+          selectedProps={selectedProps}
+          viewRef={viewRef}
+          version={version}
+        />
+        <NodeListPanel
+          viewRef={viewRef}
+          pages={pages}
+          selectedProps={selectedProps}
+          version={version}
+          onDelete={handleNodeDelete}
+        />
+      </div>
+
       {selectedNode && (
-        <NodeDetailPanel nodeId={selectedNode} pages={pages} viewRef={viewRef} />
+        <div className="md:w-1/2">
+          <NodeDetailPanel nodeId={selectedNode} pages={pages} viewRef={viewRef} />
+        </div>
       )}
-      <LayoutControls {...controls} />
-      <StatsPanel
-        pages={pages}
-        selectedProps={selectedProps}
-        viewRef={viewRef}
-        version={version}
-      />
-      <NodeListPanel
-        viewRef={viewRef}
-        pages={pages}
-        selectedProps={selectedProps}
-        version={version}
-        onDelete={handleNodeDelete}
-      />
-      
     </section>
   );
 }
