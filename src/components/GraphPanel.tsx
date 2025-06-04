@@ -21,6 +21,7 @@ export default function GraphPanel({ pages, selectedProps, colorProp }: Props) {
   /* トグル用 state（お好みで拡張） */
   const [showNodeLabels, setShowNodeLabels] = useState(true);
   const [showEdgeLabels, setShowEdgeLabels] = useState(false);
+  const [showColorLegend, setShowColorLegend] = useState(true);
 
   // @ts-expect-error, Cytoscape has no type definition for this
   const [stylesheet, setStylesheet] = useState<cytoscape.Stylesheet[]>(
@@ -64,8 +65,10 @@ export default function GraphPanel({ pages, selectedProps, colorProp }: Props) {
     },
     showEdgeLabels,
     showNodeLabels,
+    showColorLegend,
     onToggleEdgeLabels: () => setShowEdgeLabels((s) => !s),
     onToggleNodeLabels: () => setShowNodeLabels((s) => !s),
+    onToggleColorLegend: () => setShowColorLegend((s) => !s),
   };
       
   const handleNodeDelete = () => setVersion((v) => v + 1);
@@ -84,7 +87,9 @@ export default function GraphPanel({ pages, selectedProps, colorProp }: Props) {
           height={600}
           onSelectNode={setSelectedNode}
         />
-        <ColorLegend pages={pages} colorProp={colorProp} />
+        {showColorLegend && (
+          <ColorLegend pages={pages} colorProp={colorProp} />
+        )}
       </div>
       {selectedNode && (
         <NodeDetailPanel nodeId={selectedNode} pages={pages} viewRef={viewRef} />
