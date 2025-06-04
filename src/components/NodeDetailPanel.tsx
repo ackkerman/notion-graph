@@ -8,6 +8,7 @@ import { slug, getConnectedNodes } from "@/lib/cytoscape/graph";
 import { fetchPageDetail } from "@/lib/notion/notionPage";
 import NotionRenderer from "@/components/NotionRenderer";
 import { renderBlocks, sanitizeHtml } from "@/lib/notion/renderBlocks";
+import { formatIso } from '@/lib/dateFormat';
 
 interface Props {
   nodeId: string | null;
@@ -109,25 +110,34 @@ export default function NodeDetailPanel({ nodeId, pages, viewRef }: Props) {
           ([k]) => !["id", "title", "keywords"].includes(k),
         )
       : [];
-  const mainEntries = pageEntries.filter(([k]) => ["url"].includes(k));
-  const otherEntries = pageEntries.filter(([k]) => !["url"].includes(k));
+  const mainEntries = pageEntries.filter(([k]) => ["url", "createdTime"].includes(k));
+  const otherEntries = pageEntries.filter(([k]) => !["url", "createdTime"].includes(k));
 
   return (
     <section className="flex flex-col gap-2 rounded-[var(--radius-card)] border border-n-gray bg-n-bg p-3 text-sm">
       {detail?.type === "page" && (
         <div className="space-y-1">
           <div className="flex items-center gap-1">
-            <h2 className="font-semibold flex-1">{detail.page.title}</h2>
+            <h2 className="flex flex-col gap-2 md:flex-row md:items-center">
+              <a href={detail.page.url} target="_blank" rel="noreferrer" className="underline text-2xl font-semibold text-n-green hover:underline">
+                {detail.page.title}
+              </a>
+            </h2>
             {otherEntries.length > 0 && (
               <button onClick={() => setCollapsed((c) => !c)}>
                 {collapsed ? <ChevronRight size={14} /> : <ChevronDown size={14} />}
               </button>
             )}
           </div>
-          <ul className="ml-4 list-disc space-y-1">
+          <ul className="space-y-1 text-xs">
             {(collapsed ? mainEntries : pageEntries).map(([k, v]) => (
-              <li key={k} className="space-x-1">
-                <span className="font-medium">{k}:</span>
+              <li
+                key={k}
+                className="relative pl-4 leading-relaxed before:absolute before:left-0
+                          before:top-2 before:h-0.5 before:w-1.5 before:rounded-full
+                          before:bg-n-black before:opacity-50"
+              >
+                <span className="mr-1 font-semibold text-n-brown">{k}:</span>
                 {Array.isArray(v) ? (
                   <span className="flex flex-wrap gap-1">
                     {v.map((t: string) => (
@@ -140,23 +150,33 @@ export default function NodeDetailPanel({ nodeId, pages, viewRef }: Props) {
                     ))}
                   </span>
                 ) : k.toLowerCase() === "url" ? (
-                  <a href={v as string} className="underline" target="_blank" rel="noreferrer">
+                  <a
+                    href={v as string}
+                    className="underline decoration-gray-400 hover:decoration-gray-600"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
                     {v as string}
                   </a>
                 ) : (
-                  v as string
+                  <span className="text-n-black">{formatIso(v) as string}</span>
                 )}
               </li>
             ))}
           </ul>
           {detail.connected.length > 0 && (
             <>
-              <h3 className="mt-2 font-medium">Connected Nodes</h3>
-              <ul className="ml-4 list-disc space-y-1">
+              <h3 className="mt-2 font-medium text-sm">Connected Nodes</h3>
+              <div className="flex flex-wrap gap-1 text-xs">
                 {detail.connected.map((n) => (
-                  <li key={n.id}>{n.label}</li>
+                  <span
+                    key={n.id}
+                    className="rounded-[var(--radius-btn)] px-2 py-0.5 text-xs font-medium bg-n-yellow-bg text-n-black"
+                  >
+                    {n.label}
+                  </span>
                 ))}
-              </ul>
+              </div>
             </>
           )}
         </div>
