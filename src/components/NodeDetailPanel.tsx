@@ -23,7 +23,7 @@ type Detail = PageDetail | KeywordDetail | PropDetail | null;
 export default function NodeDetailPanel({ nodeId, pages, viewRef }: Props) {
   const [html, setHtml] = useState<string | null>(null);
   const [detail, setDetail] = useState<Detail>(null);
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(true);
 
   useEffect(() => {
     if (!nodeId || !nodeId.startsWith("p-")) {
@@ -100,22 +100,54 @@ export default function NodeDetailPanel({ nodeId, pages, viewRef }: Props) {
   }, [nodeId, pages, viewRef]);
 
   useEffect(() => {
-    setCollapsed(false);
+    setCollapsed(true);
   }, [detail]);
+
+  const pageEntries =
+    detail?.type === "page"
+      ? Object.entries(detail.page).filter(
+          ([k]) => !["id", "title", "keywords"].includes(k),
+        )
+      : [];
+  const mainEntries = pageEntries.filter(([k]) => ["url"].includes(k));
+  const otherEntries = pageEntries.filter(([k]) => !["url"].includes(k));
 
   return (
     <section className="flex flex-col gap-2 rounded-[var(--radius-card)] border border-n-gray bg-n-bg p-3 text-sm">
       {detail?.type === "page" && (
         <div className="space-y-1">
-          <h2 className="font-semibold">{detail.page.title}</h2>
+          <div className="flex items-center gap-1">
+            <h2 className="font-semibold flex-1">{detail.page.title}</h2>
+            {otherEntries.length > 0 && (
+              <button onClick={() => setCollapsed((c) => !c)}>
+                {collapsed ? <ChevronRight size={14} /> : <ChevronDown size={14} />}
+              </button>
+            )}
+          </div>
           <ul className="ml-4 list-disc space-y-1">
-            {Object.entries(detail.page)
-              .filter(([k]) => !["id", "title", "keywords"].includes(k))
-              .map(([k, v]) => (
-                <li key={k}>
-                  <span className="font-medium">{k}:</span> {Array.isArray(v) ? v.join(", ") : v}
-                </li>
-              ))}
+            {(collapsed ? mainEntries : pageEntries).map(([k, v]) => (
+              <li key={k} className="space-x-1">
+                <span className="font-medium">{k}:</span>
+                {Array.isArray(v) ? (
+                  <span className="flex flex-wrap gap-1">
+                    {v.map((t: string) => (
+                      <span
+                        key={t}
+                        className="rounded-[var(--radius-btn)] bg-n-green-bg px-2 py-0.5 text-xs font-medium text-n-black"
+                      >
+                        {t}
+                      </span>
+                    ))}
+                  </span>
+                ) : k.toLowerCase() === "url" ? (
+                  <a href={v as string} className="underline" target="_blank" rel="noreferrer">
+                    {v as string}
+                  </a>
+                ) : (
+                  v as string
+                )}
+              </li>
+            ))}
           </ul>
           {detail.connected.length > 0 && (
             <>
