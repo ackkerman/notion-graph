@@ -71,7 +71,7 @@ export default function GraphPanel({ pages, selectedProps }: Props) {
 
   return (
     <section className="flex flex-col md:flex-row gap-3 bg-white border border-n-gray rounded-[var(--radius-card)] p-3">
-      <div className="flex flex-col gap-3 md:w-2/3">
+      <div className="flex flex-col gap-3 md:w-1/2">
         <GraphView
           ref={viewRef}
           pages={pages}
@@ -98,7 +98,7 @@ export default function GraphPanel({ pages, selectedProps }: Props) {
       </div>
 
       {selectedNode && (
-        <div className="md:w-1/3">
+        <div className="md:w-1/2">
           <NodeDetailPanel nodeId={selectedNode} pages={pages} viewRef={viewRef} />
         </div>
       )}

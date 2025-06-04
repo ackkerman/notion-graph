@@ -115,7 +115,7 @@ export default function Page() {
 
   /* ───── JSX ───────────────────────────── */
   return (
-    <main className="mx-auto max-w-5xl space-y-6 bg-n-bg p-6 text-n-black">
+    <main className="mx-auto space-y-6 bg-n-bg p-6 text-n-black">
       {/* ── Header ────────────────────────── */}
       <header className="flex items-center gap-3">
         <Image
