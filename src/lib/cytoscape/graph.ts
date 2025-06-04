@@ -43,7 +43,7 @@ const cssVarToHex = (v: string): string => {
   return match ? VAR_HEX_MAP[match[1]] ?? DEFAULT_PAGE_COLOR : v;
 };
 
-const HUES = [
+export const HUES = [
   cssVarToHex("var(--color-n-blue)"),
   cssVarToHex("var(--color-n-green)"),
   cssVarToHex("var(--color-n-yellow)"),
@@ -53,6 +53,22 @@ const HUES = [
   cssVarToHex("var(--color-n-brown)"),
   cssVarToHex("var(--color-n-red)"),
 ] as const;
+
+export function computeColorMap(
+  pages: PageKW[],
+  colorProp?: string,
+): Map<string, string> {
+  const map = new Map<string, string>();
+  if (!colorProp) return map;
+  pages.forEach((page) => {
+    const val = Array.isArray(page[colorProp])
+      ? (page[colorProp] as string[])[0]
+      : (page[colorProp] as string | undefined);
+    if (!val) return;
+    if (!map.has(val)) map.set(val, HUES[map.size % HUES.length]);
+  });
+  return map;
+}
 
 /* ─────────────────── main builder ─────────────────── */
 
@@ -74,12 +90,10 @@ export function buildGraph(
   const edges: GraphData["edges"] = [];
 
   const seen = new Set<string>(); // 全ノード重複防止
-  const colorMap = new Map<string, string>();
+  const colorMap = computeColorMap(pages, colorProp);
   const pickColor = (val: string | undefined): string => {
     if (!val) return DEFAULT_PAGE_COLOR;
-    if (!colorMap.has(val))
-      colorMap.set(val, HUES[colorMap.size % HUES.length]);
-    return colorMap.get(val)!;
+    return colorMap.get(val) ?? DEFAULT_PAGE_COLOR;
   };
 
   const pushNode = (d: NodeData) => {

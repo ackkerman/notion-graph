@@ -34,8 +34,10 @@ type Props = {
   onExportJson: () => void;
   showEdgeLabels: boolean;
   showNodeLabels: boolean;
+  showColorLegend: boolean;
   onToggleEdgeLabels: () => void;
   onToggleNodeLabels: () => void;
+  onToggleColorLegend: () => void;
 };
 
 export default function LayoutControls({
@@ -48,8 +50,10 @@ export default function LayoutControls({
   onExportJson,
   showEdgeLabels,
   showNodeLabels,
+  showColorLegend,
   onToggleEdgeLabels,
   onToggleNodeLabels,
+  onToggleColorLegend,
 }: Props) {
   const [collapsed, setCollapsed] = useState(false);
 
@@ -137,6 +141,9 @@ export default function LayoutControls({
             </button>
             <button onClick={onToggleNodeLabels} className={toggleBtn(showNodeLabels)}>
               {showNodeLabels ? <Eye size={14} /> : <EyeOff size={14} />} Node Labels
+            </button>
+            <button onClick={onToggleColorLegend} className={toggleBtn(showColorLegend)}>
+              {showColorLegend ? <Eye size={14} /> : <EyeOff size={14} />} Legend
             </button>
           </div>
         </>
